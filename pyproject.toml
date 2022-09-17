@@ -4,10 +4,10 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "mugwort"
-version = "0.1.0"
+version = "0.2.0"
 description = "一套由各种小脚本堆砌而成的工具集，主要用于爬虫和数据治理。"
 readme = "README.md"
-requires-python = ">=3.6.1,<4"
+requires-python = ">=3.6.2,<4"
 license = { file = "LICENSE" }
 authors = [
     { name = "YongJie-Xie", email = "fsswxyj@qq.com" },
@@ -39,6 +39,9 @@ dependencies = [
 "Tracker" = "https://github.com/YongJie-Xie/MugwortTools/issues"
 
 [project.optional-dependencies]
+all = [
+    "cryptography",
+]
 test = [
     "pytest",
     "pytest-cov",
