@@ -47,6 +47,8 @@ except Exception as e:
 
 ![LoggerExample](https://github.com/YongJie-Xie/MugwortTools/blob/main/docs/images/LoggerExample.png?raw=true)
 
+![LoggerExample](https://github.com/YongJie-Xie/MugwortTools/blob/main/docs/images/LoggerExample-Terminal.png?raw=true)
+
 ### Cryptor
 
 基于各种算法实现的密码学工具，包含**对称加密解密、非对称密钥对生成、非对称加密解密、非对称签名校验、密钥交换、双因数令牌生成校验**等功能。
@@ -198,7 +200,7 @@ print(private_key_bytes)
 
 #### TOTPCryptor
 
-由双因素身份验证相关算法实现的一次性密码生成和验证工具，无需实例化即可调用。
+由**双因素身份验证**相关算法实现的**一次性密码**生成和验证工具，无需实例化即可调用。
 
 - 代码示例
 
