@@ -9,7 +9,7 @@
 @License     : MIT License
 @ProjectName : MugwortTools
 @Software    : PyCharm
-@Version     : 1.0
+@Version     : 1.1
 """
 import io
 import logging
@@ -27,6 +27,9 @@ __all__ = ['Logger', 'logger']
 
 
 class Logger:
+    """
+    支持控制台输出和文件输出的日志工具，支持 ANSI 颜色，日志样式参考 SpringBoot 项目。
+    """
     # 支持的日志等级
     CRITICAL = logging.CRITICAL
     ERROR = logging.ERROR
@@ -43,7 +46,7 @@ class Logger:
             logfile_mode: str = 'a', logfile_encoding: str = 'UTF-8',
     ):
         """
-        支持控制台输出和文件输出的日志工具，支持 ANSI 颜色，日志样式参考 SpringBoot 项目。
+        初始化日志工具
 
         :param name: 记录器名字
         :param level: 记录器记录等级
@@ -271,4 +274,4 @@ class LoggerFormatter(logging.Formatter):
 if os.name == 'nt':
     colorama_init()
 
-logger = Logger()
+logger = Logger('mugwort')
