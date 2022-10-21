@@ -274,5 +274,3 @@ class LoggerFormatter(logging.Formatter):
 
 if os.name == 'nt':
     colorama_init()
-
-logger = Logger('mugwort')
