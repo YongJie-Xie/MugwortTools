@@ -12,12 +12,19 @@
 pip install mugwort
 ```
 
+- 完整安装（包含完整依赖）
+
+```shell
+pip install mugwort[all]
+```
+
 ## 工具列表
 
-| 工具名  | 版本 | 描述                               |
-| ------- | ---- | ---------------------------------- |
-| Logger  | 1.1  | 支持控制台输出和文件输出的日志工具 |
-| Cryptor | 1.0  | 基于各种算法实现的密码学工具       |
+| 工具名  | 版本 | 描述                                           |
+| ------- | ---- | ---------------------------------------------- |
+| Logger  | 1.1  | 支持控制台输出和文件输出的日志工具             |
+| Cryptor | 1.0  | 基于各种算法实现的密码学工具                   |
+| Clash   | 1.0  | 支持订阅更新、节点切换、节点检测功能的代理工具 |
 
 ### Logger
 
@@ -215,8 +222,34 @@ validity = TOTPCryptor.verify(b'this_is_totp_key.', value, timestamp)
 print(validity, value.decode())
 ```
 
+# Clash
+
+支持**订阅更新**、**节点切换**、**节点检测**功能的 Clash 代理工具。
+
+- 代码示例
+
+```python
+ClashProxy(ClashConfig(
+    subscribe_link='https://airplane.com/clash-subscribe-link',
+    subscribe_include_keywords=['香港'],
+    subscribe_exclude_keywords=['过期时间', '剩余流量', '官网'],
+    watcher_blocking=True,
+    # 默认每天凌晨两点更新订阅
+    # watcher_job_updater_enable=True,
+    # watcher_job_updater_config={'trigger': 'cron', 'hour': 2},
+    # 默认每间隔一小时切换节点
+    # watcher_job_changer_enable=True,
+    # watcher_job_changer_config={'trigger': 'interval', 'hours': 1},
+    # 默认每间隔三十秒检测节点
+    # watcher_job_checker_enable=True,
+    # watcher_job_checker_config={'trigger': 'interval', 'seconds': 30},
+)).startup()
+```
+
 ## 更新日志
 
+- 2022-10-22
+    - 添加代理工具
 - 2022-09-18
     - 添加密码学工具
 - 2022-09-14
