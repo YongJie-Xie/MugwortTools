@@ -9,3 +9,4 @@ from .common import (
     TOTPCryptor,
 )
 from .common import Logger, logger
+from .proxy import ClashProxy, ClashConfig
