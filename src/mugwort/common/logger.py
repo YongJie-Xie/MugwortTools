@@ -144,7 +144,6 @@ class LoggerFormatter(logging.Formatter):
         logging.CRITICAL: ('FATAL', AnsiFore.LIGHTRED_EX + AnsiStyle.BRIGHT),
     }
     _srcfile = os.path.normcase(__file__)
-    _rootpath = os.path.dirname(sys.modules['__main__'].__file__)
     _location_cache = {}
 
     def __init__(self, *, color: bool = True, verbose: bool = True, rootpath: str = None):
@@ -152,6 +151,8 @@ class LoggerFormatter(logging.Formatter):
         self._verbose = verbose
         if rootpath:
             self._rootpath = os.path.abspath(rootpath)
+        elif self._verbose:
+            self._rootpath = os.path.dirname(sys.modules['__main__'].__file__)
 
         # 初始化着色工具
         if color:
