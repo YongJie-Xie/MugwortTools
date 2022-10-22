@@ -8,4 +8,4 @@ from .cryptor import (
     X25519Cryptor,
     TOTPCryptor,
 )
-from .logger import Logger, logger
+from .logger import Logger

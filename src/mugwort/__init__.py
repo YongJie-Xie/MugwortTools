@@ -8,5 +8,5 @@ from .common import (
     X25519Cryptor,
     TOTPCryptor,
 )
-from .common import Logger, logger
+from .common import Logger
 from .proxy import ClashProxy, ClashConfig
