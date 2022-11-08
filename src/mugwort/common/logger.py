@@ -67,6 +67,7 @@ class Logger:
 
         # 获取记录器实例
         self._logger = logging.getLogger(name)
+        self._logger.propagate = False
         self._logger.setLevel(min(level, logfile_level, self._logger.level if self._logger.level else float('inf')))
 
         if console and color and not self._supports_color():
@@ -151,8 +152,10 @@ class LoggerFormatter(logging.Formatter):
         self._verbose = verbose
         if rootpath:
             self._rootpath = os.path.abspath(rootpath)
-        elif self._verbose:
+        elif self._verbose and hasattr(sys.modules['__main__'], '__file__'):
             self._rootpath = os.path.dirname(sys.modules['__main__'].__file__)
+        else:
+            self._rootpath = None
 
         # 初始化着色工具
         if color:
@@ -212,16 +215,21 @@ class LoggerFormatter(logging.Formatter):
             break
 
         # 计算相对位置
+        if self._rootpath is None:
+            self._rootpath = filepath
         if filepath and filepath not in self._location_cache:
             if self._rootpath != os.path.commonpath([filepath, self._rootpath]):
                 self._rootpath = os.path.commonpath([filepath, self._rootpath])
                 self._location_cache.clear()
-            self._location_cache[filepath] = os.path.splitext(os.path.relpath(filepath, self._rootpath))[0]
+            relpath = os.path.relpath(filepath, self._rootpath)
+            if relpath == '.':
+                relpath = os.path.basename(filepath)
+            self._location_cache[filepath] = os.path.splitext(relpath)[0]
         relpath = self._location_cache.get(filepath, '(unknown)')
 
         # 缩短相对位置
         if (relpath, lineno) not in self._location_cache:
-            location = relpath.replace(os.path.sep, '.') + '.' + func + ',' + str(lineno)
+            location = relpath.replace(os.path.sep, '.') + '.' + func + '(),' + str(lineno)
             self._location_cache[(relpath, lineno)] = '%-40s' % self._abbreviate(location, limit)
 
         return self._location_cache.get((relpath, lineno), '(unknown)')
