@@ -28,7 +28,6 @@ import requests.adapters
 
 from mugwort import Logger
 
-logger = Logger('Clash')
 requests.adapters.DEFAULT_RETRIES = 7
 
 
@@ -40,7 +39,7 @@ class ClashConfig:
     }
 
     def __init__(
-            self, workdir: str = None,
+            self, workdir: str = None, logger: Logger = None,
             *,
             # 代理程序相关配置
             subscribe_link: str = None,
@@ -76,6 +75,8 @@ class ClashConfig:
         :param watcher_job_checker_requests_kwargs: 观察者【节点检测】功能的请求参数，即传入 requests 请求函数的参数
         :param watcher_job_checker_verify_function: 观察者【节点检测】功能的校验函数，回调函数传参为 Response 对象
         """
+        self._logger = logger or Logger('Clash')
+
         # 初始化工作目录
         if workdir is None:
             workdir = os.path.join(os.path.expanduser('~'), '.clash')
@@ -86,7 +87,7 @@ class ClashConfig:
             raise ValueError('当前 Clash 工作目录不可用')
         self._workdir = os.path.abspath(workdir)
         os.makedirs(self._workdir, exist_ok=True)
-        logger.info('[ClashConfig] 当前 Clash 工作目录：%s', self._workdir)
+        self._logger.info('[ClashConfig] 当前 Clash 工作目录：%s', self._workdir)
 
         # 初始化订阅信息
         self._subscribe_link = subscribe_link
@@ -96,21 +97,21 @@ class ClashConfig:
             try:
                 import yaml
             except ImportError:
-                logger.warning('[ClashConfig] 更新订阅依赖 pyyaml 模块\npip install pyyaml')
+                self._logger.warning('[ClashConfig] 更新订阅依赖 pyyaml 模块\npip install pyyaml')
                 sys.exit(1)
-        logger.info('[ClashConfig] 订阅链接：%s', self._subscribe_link)
-        logger.info('[ClashConfig] 节点匹配正则规则：%s', self._subscribe_include_regex)
-        logger.info('[ClashConfig] 节点排除正则规则：%s', self._subscribe_exclude_regex)
+        self._logger.info('[ClashConfig] 订阅链接：%s', self._subscribe_link)
+        self._logger.info('[ClashConfig] 节点匹配正则规则：%s', self._subscribe_include_regex)
+        self._logger.info('[ClashConfig] 节点排除正则规则：%s', self._subscribe_exclude_regex)
 
         # 初始化监听地址
         self._listen_host = listen_host
         self._listen_port = self._random_unused_port(8000, 9000, listen_host) if listen_port == 0 else listen_port
-        logger.info('[ClashConfig] 混合代理接口：%s', self.get_listen_address())
+        self._logger.info('[ClashConfig] 混合代理接口：%s', self.get_listen_address())
 
         # 初始化管理地址
         self._manage_host = manage_host
         self._manage_port = self._random_unused_port(8000, 9000, manage_host) if manage_port == 0 else manage_port
-        logger.info('[ClashConfig] 外部管理接口：%s', self.get_manage_address())
+        self._logger.info('[ClashConfig] 外部管理接口：%s', self.get_manage_address())
 
         # 初始化观察者
         self._watcher_enable = watcher_enable
@@ -123,20 +124,23 @@ class ClashConfig:
                     from apscheduler.schedulers.background import BackgroundScheduler
             except ImportError:
                 self._watcher_enable = False
-                logger.warning('[ClashConfig] 观察者依赖 apscheduler 模块，已禁用观察者\npip install apscheduler')
+                self._logger.warning('[ClashConfig] 观察者依赖 apscheduler 模块，已禁用观察者\npip install apscheduler')
 
         if self._watcher_enable:
             # 初始化观察者【订阅更新】功能
             self._watcher_job_updater_enable = watcher_job_updater_enable
             if self._watcher_job_updater_enable and self._subscribe_link is None:
                 self._watcher_job_updater_enable = False
-                logger.warning('[ClashConfig] 未配置订阅链接，已关闭观察者【订阅更新】功能')
+                self._logger.warning('[ClashConfig] 未配置订阅链接，已关闭观察者【订阅更新】功能')
             if self._watcher_job_updater_enable:
                 # 调度参数
                 if watcher_job_updater_config is None:
                     watcher_job_updater_config = {'trigger': 'cron', 'hour': 2}
                 self._watcher_job_updater_config = watcher_job_updater_config
-                logger.info('[ClashConfig] 观察者【订阅更新】功能已启用\n调度参数：%s', self._watcher_job_updater_config)
+                self._logger.info(
+                    '[ClashConfig] 观察者【订阅更新】功能已启用\n调度参数：%s',
+                    self._watcher_job_updater_config
+                )
 
             # 初始化观察者【节点切换】功能
             self._watcher_job_changer_enable = watcher_job_changer_enable
@@ -145,7 +149,10 @@ class ClashConfig:
                 if watcher_job_changer_config is None:
                     watcher_job_changer_config = {'trigger': 'interval', 'hours': 1}
                 self._watcher_job_changer_config = watcher_job_changer_config
-                logger.info('[ClashConfig] 观察者【节点切换】功能已启用\n调度参数：%s', self._watcher_job_changer_config)
+                self._logger.info(
+                    '[ClashConfig] 观察者【节点切换】功能已启用\n调度参数：%s',
+                    self._watcher_job_changer_config
+                )
 
             # 初始化观察者【节点检测】功能
             self._watcher_job_checker_enable = watcher_job_checker_enable
@@ -167,7 +174,7 @@ class ClashConfig:
                     def watcher_job_checker_verify_function(response: requests.Response):
                         return response.status_code == 200
                 self._watcher_job_checker_verify_function = watcher_job_checker_verify_function
-                logger.info(
+                self._logger.info(
                     '[ClashConfig] 观察者【节点检测】功能已启用\n调度参数：%s\n请求参数：%s',
                     self._watcher_job_checker_config,
                     json.dumps(watcher_job_checker_requests_kwargs, indent=2, ensure_ascii=False),
@@ -206,11 +213,11 @@ class ClashConfig:
         if self._subscribe_link is None:
             return
         import yaml
-        logger.info('[ClashConfig] 正在更新订阅信息')
+        self._logger.info('[ClashConfig] 正在更新订阅信息')
         response = requests.get(self._subscribe_link, headers=self._default_headers, timeout=7)
         subscribe_yaml = yaml.safe_load(response.content)
-        logger.info('[ClashConfig] 流量信息：%s', response.headers.get('Subscription-Userinfo'))
-        logger.info('[ClashConfig] 节点总数：%d', len(subscribe_yaml['proxies']))
+        self._logger.info('[ClashConfig] 流量信息：%s', response.headers.get('Subscription-Userinfo'))
+        self._logger.info('[ClashConfig] 节点总数：%d', len(subscribe_yaml['proxies']))
 
         subscribe_config = {
             'mode': 'global', 'log-level': 'warning',
@@ -232,12 +239,12 @@ class ClashConfig:
             ]
 
         if self._subscribe_include_regex or self._subscribe_exclude_regex:
-            logger.info('[ClashConfig] 过滤后节点数量：%d', len(subscribe_config['proxies']))
+            self._logger.info('[ClashConfig] 过滤后节点数量：%d', len(subscribe_config['proxies']))
 
         config_filepath = self.get_config_filepath()
         with open(config_filepath, 'w', encoding='utf8') as file:
             yaml.dump(subscribe_config, file, allow_unicode=True)
-        logger.info('[ClashConfig] 当前 Clash 配置文件保存位置：%s', config_filepath)
+        self._logger.info('[ClashConfig] 当前 Clash 配置文件保存位置：%s', config_filepath)
 
     @classmethod
     def _random_unused_port(cls, start: int, stop: int, host: str = '127.0.0.1') -> int:
@@ -263,44 +270,47 @@ class ClashConfig:
                 times -= 1
         return False
 
-    @staticmethod
-    def _download_executor(folder: str) -> NoReturn:
+    def _download_executor(self, folder: str) -> NoReturn:
         """下载 Clash 代理程序"""
         zfs = [file for file in os.listdir(folder) if re.match(r'clash-windows-amd64-v\d+.\d+.\d+.zip', file)]
         if zfs:
-            logger.info('[ClashConfig] 已检测到 Clash 代理程序压缩包，尝试从本地解压')
+            self._logger.info('[ClashConfig] 已检测到 Clash 代理程序压缩包，尝试从本地解压')
             if len(zfs) > 1:
                 try:
                     from packaging.version import Version
                 except ImportError:
                     from distutils.version import StrictVersion as Version
                 zfs = list(sorted(zfs, key=lambda s: Version(s[21:-4])))
-            logger.info('[ClashConfig] 解压 Clash 代理程序压缩包：%s', zfs[-1])
+            self._logger.info('[ClashConfig] 解压 Clash 代理程序压缩包：%s', zfs[-1])
             with zipfile.ZipFile(os.path.join(folder, zfs[-1]), 'r') as zf:
                 zf.extractall(folder)
         else:
-            logger.info('[ClashConfig] 未检测到 Clash 代理程序，尝试从 Github 下载')
+            self._logger.info('[ClashConfig] 未检测到 Clash 代理程序，尝试从 Github 下载')
 
             # 获取最新版本号
             url = 'https://api.github.com/repos/Dreamacro/clash/releases/latest'
             response_json = requests.get(url, timeout=7).json()
             tag = response_json['tag_name']
-            logger.info('[ClashConfig] 当前 Clash 最新版本：%s', tag)
+            self._logger.info('[ClashConfig] 当前 Clash 最新版本：%s', tag)
 
             # 下载最新版本执行程序
             url = 'https://github.com/Dreamacro/clash/releases/download/%s/clash-windows-amd64-%s.zip' % (tag, tag)
-            logger.info('[ClashConfig] 正在下载代理程序，等待时间过长请手动下载\n下载地址：%s\n存放目录：%s', url, folder)
+            self._logger.info('[ClashConfig] 正在下载代理程序，等待时间过长请手动下载\n下载地址：%s\n存放目录：%s', url, folder)
             response = requests.get(url)
-            logger.info('[ClashConfig] 代理程序下载完毕，正在解压')
+            self._logger.info('[ClashConfig] 代理程序下载完毕，正在解压')
             buffer = io.BytesIO()
             buffer.write(response.content)
             with zipfile.ZipFile(buffer, 'r') as zf:
                 zf.extractall(folder)
-        logger.info('[ClashConfig] 当前 Clash 代理程序保存位置：%s', folder)
+        self._logger.info('[ClashConfig] 当前 Clash 代理程序保存位置：%s', folder)
 
     @property
     def workdir(self) -> str:
         return self._workdir
+
+    @property
+    def logger(self) -> Logger:
+        return self._logger
 
     @property
     def listen_host(self) -> str:
@@ -364,6 +374,7 @@ class ClashManager:
 
     def __init__(self, config: ClashConfig):
         self._config = config
+        self._logger = self._config.logger
 
     def reload_subscribe(self) -> bool:
         """请求代理程序重新加载配置文件"""
@@ -385,9 +396,9 @@ class ClashManager:
                 raise RuntimeError('重新加载配置文件失败')
             return True
         except RuntimeError as e:
-            logger.error('[ClashManager] 更新订阅失败：%s', e)
+            self._logger.error('[ClashManager] 更新订阅失败：%s', e)
         except Exception as e:
-            logger.exception(e)
+            self._logger.exception(e)
         return False
 
     def get_proxy_nodes(self) -> list:
@@ -412,22 +423,22 @@ class ClashManager:
             if response.status_code == 204:
                 proxy_ip = self.get_proxy_ip()
                 if proxy_ip:
-                    logger.info('[ClashManager] 切换代理成功，当前出口：%s', proxy_ip)
+                    self._logger.info('[ClashManager] 切换代理成功，当前出口：%s', proxy_ip)
                     return True
         except requests.RequestException:
             pass
-        logger.warning('[ClashManager] 切换代理失败')
+        self._logger.warning('[ClashManager] 切换代理失败')
         return False
 
     def change_proxy_node_random(self) -> bool:
         """获取全部代理节点后随机选取并请求代理程序切换至该代理节点"""
         proxies = self.get_proxy_nodes()
         if not proxies:
-            logger.warning('[ClashManager] 无可选代理')
+            self._logger.warning('[ClashManager] 无可选代理')
             return False
 
         proxy = random.choice(proxies)
-        logger.info('[ClashManager] 已选中代理：%s', proxy)
+        self._logger.info('[ClashManager] 已选中代理：%s', proxy)
 
         return self.change_proxy_node(proxy)
 
@@ -450,6 +461,7 @@ class ClashWatcher:
 
     def __init__(self, config: ClashConfig):
         self._config = config
+        self._logger = self._config.logger
         self._manager = ClashManager(config)
 
         if self._config.watcher_blocking:
@@ -467,15 +479,15 @@ class ClashWatcher:
             self._scheduler.add_job(self.job_checker_proxy_node, **self._config.watcher_job_checker_config)
 
     def job_updater_subscribe(self):
-        logger.info('[ClashWatcher] <定时更新订阅>')
+        self._logger.info('[ClashWatcher] <定时更新订阅>')
         self._manager.update_subscribe()
 
     def job_changer_proxy_node(self):
-        logger.info('[ClashWatcher] <定时切换节点>')
+        self._logger.info('[ClashWatcher] <定时切换节点>')
         self._manager.change_proxy_node_random()
 
     def job_checker_proxy_node(self, times: int = 3):
-        logger.info('[ClashWatcher] <定时检测节点>')
+        self._logger.info('[ClashWatcher] <定时检测节点>')
         requests_kwargs = self._config.watcher_job_checker_requests_kwargs.copy()
         requests_kwargs.update({'timeout': 7, 'proxies': {'all': self._config.get_listen_address()}})
         verify_function = self._config.watcher_job_checker_verify_function
@@ -489,12 +501,12 @@ class ClashWatcher:
             else:
                 proxy_ip = self._manager.get_proxy_ip()
                 if proxy_ip:
-                    logger.info('[ClashWatcher] 代理程序运行正常，当前出口：%s', proxy_ip)
+                    self._logger.info('[ClashWatcher] 代理程序运行正常，当前出口：%s', proxy_ip)
                     break
             finally:
                 times -= 1
         else:
-            logger.warning('[ClashWatcher] 代理程序运行异常，切换代理节点')
+            self._logger.warning('[ClashWatcher] 代理程序运行异常，切换代理节点')
             self._manager.change_proxy_node_random()
 
     def startup(self):
@@ -519,33 +531,34 @@ class ClashProxy:
     def __init__(self, config: ClashConfig):
         try:
             self._config = config
+            self._logger = self._config.logger
             self._manager = ClashManager(config)
             self._manager.update_subscribe(reload=False)
             if self._config.watcher_enable:
                 self._watcher = ClashWatcher(config)
         except Exception as e:
-            logger.critical('[Clash] 代理程序初始化异常')
-            logger.exception(e)
+            self._logger.critical('[Clash] 代理程序初始化异常')
+            self._logger.exception(e)
             sys.exit(1)
 
     def startup(self) -> NoReturn:
-        logger.info('[Clash] 启动代理程序')
+        self._logger.info('[Clash] 启动代理程序')
         self._process = Popen(self._config.get_launch_command(), stdout=PIPE, bufsize=-1)
 
-        logger.info('[Clash] 捕获代理程序日志')
+        self._logger.info('[Clash] 捕获代理程序日志')
         Thread(target=self._log_listener).start()
 
-        logger.info('[Clash] 等待代理程序响应')
+        self._logger.info('[Clash] 等待代理程序响应')
         host, port = self._config.manage_host, self._config.manage_port
         while self._config.check_port_occupied(host, port, times=10) is False:
-            logger.warning('代理程序仍未响应，继续等待')
+            self._logger.warning('代理程序仍未响应，继续等待')
 
-        logger.info('[Clash] 切换代理节点')
+        self._logger.info('[Clash] 切换代理节点')
         self._manager.reload_subscribe()
         self._manager.change_proxy_node_random()
 
         if self._config.watcher_enable:
-            logger.info('[Clash] 启动代理程序观察者')
+            self._logger.info('[Clash] 启动代理程序观察者')
             self._watcher.startup()
 
     def shutdown(self) -> NoReturn:
@@ -568,9 +581,9 @@ class ClashProxy:
                 continue
             if line.startswith('time='):
                 level, msg = line[39:-2].split(' ', 1)
-                getattr(logger, level)('[Clash] 代理程序日志：%s', msg[5:])
+                getattr(self._logger, level)('[Clash] 代理程序日志：%s', msg[5:])
             else:
-                logger.warning(line.strip())
+                self._logger.warning(line.strip())
             if 'MMDB' in line:
                 url = 'https://cdn.jsdelivr.net/gh/Dreamacro/maxmind-geoip@release/Country.mmdb'  # noqa
-                logger.info('[Clash] 代理程序正在下载 MMDB 文件\n下载地址：%s\n保存位置：%s', url, self._config.workdir)
+                self._logger.info('[Clash] 代理程序正在下载 MMDB 文件\n下载地址：%s\n保存位置：%s', url, self._config.workdir)
