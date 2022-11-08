@@ -10,7 +10,7 @@
 @Software    : PyCharm
 @Version     : 1.0
 """
-from mugwort import Logger, logger
+from mugwort import Logger
 
 
 def test_something():
