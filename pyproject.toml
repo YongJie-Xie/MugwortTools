@@ -45,6 +45,14 @@ all = [
     "pyyaml",
     "apscheduler",
 ]
+crypto = [
+    "cryptography",
+]
+proxy = [
+    "requests",
+    "pyyaml",
+    "apscheduler",
+]
 test = [
     "pytest",
     "pytest-cov",

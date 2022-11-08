@@ -14,7 +14,7 @@
 import os
 import time
 
-from mugwort import (
+from mugwort.crypto import (
     AESCryptor,
     TripleDESCryptor,
     RSACryptor,

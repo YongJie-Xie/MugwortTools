@@ -12,6 +12,13 @@
 pip install mugwort
 ```
 
+- 部分安装
+
+```shell
+pip install mugwort[crypto]
+pip install mugwort[proxy]
+```
+
 - 完整安装（包含完整依赖）
 
 ```shell
@@ -56,7 +63,7 @@ except Exception as e:
 
 ![LoggerExample](https://github.com/YongJie-Xie/MugwortTools/blob/main/docs/images/LoggerExample-Terminal.png?raw=true)
 
-### Cryptor
+### Crypto
 
 基于各种算法实现的密码学工具，包含**对称加密解密、非对称密钥对生成、非对称加密解密、非对称签名校验、密钥交换、双因数令牌生成校验**等功能。
 
@@ -73,7 +80,7 @@ except Exception as e:
 
 ```python
 import os
-from mugwort import AESCryptor
+from mugwort.crypto import AESCryptor
 
 key = b'this_is_aes_key.'
 iv = os.urandom(16)
@@ -94,7 +101,7 @@ print(key, iv, plaintext)
 
 ```python
 import os
-from mugwort import TripleDESCryptor
+from mugwort.crypto import TripleDESCryptor
 
 # 当密钥长度为 8 时，等价于 DES 算法
 key = b'des_key.'
@@ -125,7 +132,7 @@ print(key, iv, plaintext)
 - 代码示例
 
 ```python
-from mugwort import RSACryptor
+from mugwort.crypto import RSACryptor
 
 public_key, private_key = RSACryptor.generate()
 
@@ -156,7 +163,7 @@ print(validity, signature)
 - 代码示例
 
 ```python
-from mugwort import Ed25519Cryptor
+from mugwort.crypto import Ed25519Cryptor
 
 public_key, private_key = Ed25519Cryptor.generate()
 
@@ -187,7 +194,7 @@ print(validity)
 
 
 ```python
-from mugwort import X25519Cryptor
+from mugwort.crypto import X25519Cryptor
 
 foo_public_key, foo_private_key = X25519Cryptor.generate()
 bar_public_key, bar_private_key = X25519Cryptor.generate()
@@ -213,7 +220,7 @@ print(private_key_bytes)
 
 ```python
 import time
-from mugwort import TOTPCryptor
+from mugwort.crypto import TOTPCryptor
 
 timestamp = int(time.time())
 
@@ -222,13 +229,17 @@ validity = TOTPCryptor.verify(b'this_is_totp_key.', value, timestamp)
 print(validity, value.decode())
 ```
 
-# Clash
+### Proxy
+
+#### Clash
 
 支持**订阅更新**、**节点切换**、**节点检测**功能的 Clash 代理工具。
 
 - 代码示例
 
 ```python
+from mugwort.proxy import ClashProxy, ClashConfig
+
 ClashProxy(ClashConfig(
     subscribe_link='https://airplane.com/clash-subscribe-link',
     subscribe_include_keywords=['香港'],

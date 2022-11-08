@@ -25,8 +25,16 @@ from typing import Any, Callable, Dict, List, NoReturn, Optional
 
 import requests
 import requests.adapters
+import yaml
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 
-from mugwort import Logger
+from .. import Logger
+
+__all__ = [
+    'ClashConfig',
+    'ClashProxy',
+]
 
 requests.adapters.DEFAULT_RETRIES = 7
 
@@ -93,12 +101,6 @@ class ClashConfig:
         self._subscribe_link = subscribe_link
         self._subscribe_include_regex = '|'.join(x.replace('|', r'\|') for x in subscribe_include_keywords or [])
         self._subscribe_exclude_regex = '|'.join(x.replace('|', r'\|') for x in subscribe_exclude_keywords or [])
-        if self._subscribe_link:
-            try:
-                import yaml
-            except ImportError:
-                self._logger.warning('[ClashConfig] 更新订阅依赖 pyyaml 模块\npip install pyyaml')
-                sys.exit(1)
         self._logger.info('[ClashConfig] 订阅链接：%s', self._subscribe_link)
         self._logger.info('[ClashConfig] 节点匹配正则规则：%s', self._subscribe_include_regex)
         self._logger.info('[ClashConfig] 节点排除正则规则：%s', self._subscribe_exclude_regex)
@@ -117,14 +119,6 @@ class ClashConfig:
         self._watcher_enable = watcher_enable
         if self._watcher_enable:
             self._watcher_blocking = watcher_blocking
-            try:
-                if self._watcher_blocking:
-                    from apscheduler.schedulers.blocking import BlockingScheduler
-                else:
-                    from apscheduler.schedulers.background import BackgroundScheduler
-            except ImportError:
-                self._watcher_enable = False
-                self._logger.warning('[ClashConfig] 观察者依赖 apscheduler 模块，已禁用观察者\npip install apscheduler')
 
         if self._watcher_enable:
             # 初始化观察者【订阅更新】功能
@@ -212,7 +206,6 @@ class ClashConfig:
         """更新订阅功能的下载、解析和保存部分"""
         if self._subscribe_link is None:
             return
-        import yaml
         self._logger.info('[ClashConfig] 正在更新订阅信息')
         response = requests.get(self._subscribe_link, headers=self._default_headers, timeout=7)
         subscribe_yaml = yaml.safe_load(response.content)
@@ -369,7 +362,7 @@ class ClashConfig:
         return self._watcher_job_checker_verify_function
 
 
-class ClashManager:
+class _ClashManager:
     """管理类，用于管理代理程序"""
 
     def __init__(self, config: ClashConfig):
@@ -456,19 +449,17 @@ class ClashManager:
         return None
 
 
-class ClashWatcher:
+class _ClashWatcher:
     """观察者，用于监视和管理代理程序"""
 
     def __init__(self, config: ClashConfig):
         self._config = config
         self._logger = self._config.logger
-        self._manager = ClashManager(config)
+        self._manager = _ClashManager(config)
 
         if self._config.watcher_blocking:
-            from apscheduler.schedulers.blocking import BlockingScheduler
             self._scheduler = BlockingScheduler(timezone='Asia/Shanghai')
         else:
-            from apscheduler.schedulers.background import BackgroundScheduler
             self._scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
 
         if self._config.watcher_job_updater_enable:
@@ -532,10 +523,10 @@ class ClashProxy:
         try:
             self._config = config
             self._logger = self._config.logger
-            self._manager = ClashManager(config)
+            self._manager = _ClashManager(config)
             self._manager.update_subscribe(reload=False)
             if self._config.watcher_enable:
-                self._watcher = ClashWatcher(config)
+                self._watcher = _ClashWatcher(config)
         except Exception as e:
             self._logger.critical('[Clash] 代理程序初始化异常')
             self._logger.exception(e)
