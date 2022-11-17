@@ -5,7 +5,7 @@
 @Contact     : fsswxyj@qq.com
 @DateTime    : 2022-09-17 17:14
 @Description : TODO 撰写描述
-@FileName    : test_common_cryptor
+@FileName    : test_tool_cryptor
 @License     : MIT License
 @ProjectName : MugwortTools
 @Software    : PyCharm
@@ -14,7 +14,7 @@
 import os
 import time
 
-from mugwort.crypto import (
+from mugwort.tools.cryptor import (
     AESCryptor,
     TripleDESCryptor,
     RSACryptor,

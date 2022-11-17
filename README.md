@@ -15,8 +15,8 @@ pip install mugwort
 - 部分安装
 
 ```shell
-pip install mugwort[crypto]
-pip install mugwort[proxy]
+pip install mugwort[cryptor]
+pip install mugwort[proxy-clash]
 ```
 
 - 完整安装（包含完整依赖）
@@ -27,12 +27,12 @@ pip install mugwort[all]
 
 ## 工具列表
 
-| 工具名    | 版本 | 描述                                           |
-| --------- | ---- | ---------------------------------------------- |
-| Logger    | 1.1  | 支持控制台输出和文件输出的日志工具             |
-| MultiTask | 1.0  | 基于多线程、多进程实现的多任务处理工具         |
-| Crypto    | 1.0  | 基于各种算法实现的密码学工具                   |
-| Clash     | 1.0  | 支持订阅更新、节点切换、节点检测功能的代理工具 |
+| 工具名     | 版本 | 描述                                           |
+| ---------- | ---- | ---------------------------------------------- |
+| Logger     | 1.1  | 支持控制台输出和文件输出的日志工具             |
+| MultiTask  | 1.0  | 基于多线程、多进程实现的多任务处理工具         |
+| Cryptor    | 1.0  | 基于各种算法实现的密码学工具                   |
+| ClashProxy | 1.0  | 支持订阅更新、节点切换、节点检测功能的代理工具 |
 
 ### Logger
 
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     main()
 ```
 
-### Crypto
+### Cryptor
 
 基于各种算法实现的密码学工具，包含**对称加密解密、非对称密钥对生成、非对称加密解密、非对称签名校验、密钥交换、双因数令牌生成校验**等功能。
 
@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
 ```python
 import os
-from mugwort.crypto import AESCryptor
+from mugwort.tools.cryptor import AESCryptor
 
 key = b'this_is_aes_key.'
 iv = os.urandom(16)
@@ -143,7 +143,7 @@ print(key, iv, plaintext)
 
 ```python
 import os
-from mugwort.crypto import TripleDESCryptor
+from mugwort.tools.cryptor import TripleDESCryptor
 
 # 当密钥长度为 8 时，等价于 DES 算法
 key = b'des_key.'
@@ -174,7 +174,7 @@ print(key, iv, plaintext)
 - 代码示例
 
 ```python
-from mugwort.crypto import RSACryptor
+from mugwort.tools.cryptor import RSACryptor
 
 public_key, private_key = RSACryptor.generate()
 
@@ -205,7 +205,7 @@ print(validity, signature)
 - 代码示例
 
 ```python
-from mugwort.crypto import Ed25519Cryptor
+from mugwort.tools.cryptor import Ed25519Cryptor
 
 public_key, private_key = Ed25519Cryptor.generate()
 
@@ -234,9 +234,8 @@ print(validity)
   - 通过【我的私钥和对方的公钥】或【我的公钥和对方的私钥】会生成一串相同的密钥。
   - 本示例不模拟密钥传输，而是使用直接生成的两份密钥对。
 
-
 ```python
-from mugwort.crypto import X25519Cryptor
+from mugwort.tools.cryptor import X25519Cryptor
 
 foo_public_key, foo_private_key = X25519Cryptor.generate()
 bar_public_key, bar_private_key = X25519Cryptor.generate()
@@ -262,7 +261,7 @@ print(private_key_bytes)
 
 ```python
 import time
-from mugwort.crypto import TOTPCryptor
+from mugwort.tools.cryptor import TOTPCryptor
 
 timestamp = int(time.time())
 
@@ -280,7 +279,7 @@ print(validity, value.decode())
 - 代码示例
 
 ```python
-from mugwort.proxy import ClashProxy, ClashConfig
+from mugwort.tools.proxy.clash import ClashProxy, ClashConfig
 
 ClashProxy(ClashConfig(
     subscribe_link='https://airplane.com/clash-subscribe-link',

@@ -23,13 +23,18 @@ from subprocess import Popen, PIPE
 from threading import Thread
 from typing import Any, Callable, Dict, List, NoReturn, Optional
 
-import requests
-import requests.adapters
-import yaml
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.schedulers.blocking import BlockingScheduler
+from mugwort import Logger
 
-from .. import Logger
+try:
+    import requests.adapters
+    import yaml
+    from apscheduler.schedulers.background import BackgroundScheduler
+    from apscheduler.schedulers.blocking import BlockingScheduler
+except ImportError:
+    raise ImportError(
+        'Tool `proxy.clash` cannot be imported.',
+        'Please execute `pip install mugwort[proxy-clash]` to install dependencies first.'
+    )
 
 __all__ = [
     'ClashConfig',

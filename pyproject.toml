@@ -45,10 +45,10 @@ all = [
     "pyyaml",
     "apscheduler",
 ]
-crypto = [
+cryptor = [
     "cryptography",
 ]
-proxy = [
+proxy-clash = [
     "requests",
     "pyyaml",
     "apscheduler",

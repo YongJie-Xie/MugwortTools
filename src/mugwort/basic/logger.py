@@ -23,7 +23,9 @@ from typing import Union
 from colorama import init as colorama_init
 from colorama.ansi import Fore as AnsiFore, Style as AnsiStyle
 
-__all__ = ['Logger', 'logger']
+__all__ = [
+    'Logger',
+]
 
 
 class Logger:
