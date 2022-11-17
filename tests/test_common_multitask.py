@@ -16,7 +16,7 @@ import time
 from queue import Queue
 from typing import Dict, List
 
-from mugwort import Logger, MultiTask, MultiTaskVariable
+from mugwort import Logger, MultiTask
 
 logger = Logger('Test', level=Logger.INFO, verbose=True)
 
@@ -33,11 +33,10 @@ def task_worker_lock(obj: Lock):
 def test_task_lock():
     for mode in ['thread', 'process']:
         logger.warning('正在实例化 %s 模式的多任务类及多任务变量类', mode)
-        multi_task = MultiTask(mode, 4, logger)
-        multi_task_variable = MultiTaskVariable(mode)
+        multi_task = MultiTask(mode, max_workers=4, logger=logger)
 
         logger.warning('即将测试 %s 模式的 lock', mode)
-        lock = multi_task_variable.get_lock()
+        lock = multi_task.variable.get_lock()
         for future in multi_task.submit_maxsize(task_worker_lock, lock):
             assert future.exception() is None
 
@@ -56,11 +55,10 @@ def task_worker_r_lock(obj: RLock):
 def test_task_r_lock():
     for mode in ['thread', 'process']:
         logger.warning('正在实例化 %s 模式的多任务类及多任务变量类', mode)
-        multi_task = MultiTask(mode, 4, logger)
-        multi_task_variable = MultiTaskVariable(mode)
+        multi_task = MultiTask(mode, max_workers=4, logger=logger)
 
         logger.warning('即将测试 %s 模式的 r_lock', mode)
-        r_lock = multi_task_variable.get_r_lock()
+        r_lock = multi_task.variable.get_r_lock()
         for future in multi_task.submit_maxsize(task_worker_lock, r_lock):
             assert future.exception() is None
 
@@ -87,11 +85,10 @@ def task_consumer_condition(obj: Condition):
 def test_task_condition():
     for mode in ['thread', 'process']:
         logger.warning('正在实例化 %s 模式的多任务类及多任务变量类', mode)
-        multi_task = MultiTask(mode, 2, logger)
-        multi_task_variable = MultiTaskVariable(mode)
+        multi_task = MultiTask(mode, max_workers=2, logger=logger)
 
         logger.warning('即将测试 %s 模式的 condition', mode)
-        condition = multi_task_variable.get_condition()
+        condition = multi_task.variable.get_condition()
         producer_future = multi_task.submit(task_producer_condition, condition)
         consumer_future = multi_task.submit(task_consumer_condition, condition)
         assert producer_future.exception() is None
@@ -118,11 +115,10 @@ def task_consumer_semaphore(obj: Semaphore):
 def test_task_semaphore():
     for mode in ['thread', 'process']:
         logger.warning('正在实例化 %s 模式的多任务类及多任务变量类', mode)
-        multi_task = MultiTask(mode, 2, logger)
-        multi_task_variable = MultiTaskVariable(mode)
+        multi_task = MultiTask(mode, max_workers=2, logger=logger)
 
         logger.warning('即将测试 %s 模式的 semaphore', mode)
-        semaphore = multi_task_variable.get_semaphore(2)
+        semaphore = multi_task.variable.get_semaphore(2)
         assert multi_task.submit(task_producer_semaphore, semaphore).exception() is None
         assert multi_task.submit(task_consumer_semaphore, semaphore).exception() is None
 
@@ -141,11 +137,10 @@ def task_worker_bounded_semaphore(obj: BoundedSemaphore):
 def test_task_bounded_semaphore():
     for mode in ['thread', 'process']:
         logger.warning('正在实例化 %s 模式的多任务类及多任务变量类', mode)
-        multi_task = MultiTask(mode, 1, logger)
-        multi_task_variable = MultiTaskVariable(mode)
+        multi_task = MultiTask(mode, max_workers=1, logger=logger)
 
         logger.warning('即将测试 %s 模式的 bounded_semaphore', mode)
-        bounded_semaphore = multi_task_variable.get_bounded_semaphore(2)
+        bounded_semaphore = multi_task.variable.get_bounded_semaphore(2)
         assert multi_task.submit(task_worker_bounded_semaphore, bounded_semaphore).exception() is None
 
 
@@ -168,11 +163,10 @@ def task_consumer_event(obj: Event):
 def test_task_event():
     for mode in ['thread', 'process']:
         logger.warning('正在实例化 %s 模式的多任务类及多任务变量类', mode)
-        multi_task = MultiTask(mode, 2, logger)
-        multi_task_variable = MultiTaskVariable(mode)
+        multi_task = MultiTask(mode, max_workers=2, logger=logger)
 
         logger.warning('即将测试 %s 模式的 event', mode)
-        event = multi_task_variable.get_event()
+        event = multi_task.variable.get_event()
         assert multi_task.submit(task_producer_event, event).exception() is None
         assert multi_task.submit(task_consumer_event, event).exception() is None
 
@@ -188,11 +182,10 @@ def task_worker_barrier(obj: Barrier):
 def test_task_barrier():
     for mode in ['thread', 'process']:
         logger.warning('正在实例化 %s 模式的多任务类及多任务变量类', mode)
-        multi_task = MultiTask(mode, 4, logger)
-        multi_task_variable = MultiTaskVariable(mode)
+        multi_task = MultiTask(mode, max_workers=4, logger=logger)
 
         logger.warning('即将测试 %s 模式的 barrier', mode)
-        barrier = multi_task_variable.get_barrier(4)
+        barrier = multi_task.variable.get_barrier(4)
         for future in multi_task.submit_maxsize(task_worker_barrier, barrier):
             assert future.exception() is None
 
@@ -218,11 +211,10 @@ def task_consumer_queue(obj: Queue):
 def test_task_queue():
     for mode in ['thread', 'process']:
         logger.warning('正在实例化 %s 模式的多任务类及多任务变量类', mode)
-        multi_task = MultiTask(mode, 2, logger)
-        multi_task_variable = MultiTaskVariable(mode)
+        multi_task = MultiTask(mode, max_workers=2, logger=logger)
 
         logger.warning('即将测试 %s 模式的 queue', mode)
-        queue = multi_task_variable.get_queue()
+        queue = multi_task.variable.get_queue()
         producer_future = multi_task.submit(task_producer_queue, queue)
         consumer_future = multi_task.submit(task_consumer_queue, queue)
         assert producer_future.exception() is None
@@ -248,11 +240,10 @@ def task_consumer_namespace(obj):
 
 def test_task_namespace():
     logger.warning('正在实例化 process 模式的多任务类及多任务变量类')
-    multi_task = MultiTask('process', 2)
-    multi_task_variable = MultiTaskVariable('process')
+    multi_task = MultiTask('process', max_workers=2, logger=logger)
 
     logger.warning('即将测试 process 模式的 namespace')
-    namespace = multi_task_variable.get_namespace()
+    namespace = multi_task.variable.get_namespace()
     assert multi_task.submit(task_producer_namespace, namespace).exception() is None
     assert multi_task.submit(task_consumer_namespace, namespace).exception() is None
 
@@ -283,13 +274,12 @@ def task_consumer_array(obj):
     logger.info('消费者已退出')
 
 
-def test_thread_array():
+def test_task_array():
     logger.warning('正在实例化 process 模式的多任务类及多任务变量类')
-    multi_task = MultiTask('process', 2)
-    multi_task_variable = MultiTaskVariable('process')
+    multi_task = MultiTask('process', max_workers=2, logger=logger)
 
     logger.warning('即将测试 process 模式的 array')
-    array = multi_task_variable.get_array('i', [1, 2, 3])
+    array = multi_task.variable.get_array('i', [1, 2, 3])
     assert multi_task.submit(task_producer_array, array).exception() is None
     assert multi_task.submit(task_consumer_array, array).exception() is None
 
@@ -313,11 +303,10 @@ def task_consumer_value(obj):
 
 def test_task_value():
     logger.warning('正在实例化 process 模式的多任务类及多任务变量类')
-    multi_task = MultiTask('process', 1)
-    multi_task_variable = MultiTaskVariable('process')
+    multi_task = MultiTask('process', max_workers=1, logger=logger)
 
     logger.warning('即将测试 process 模式的 value')
-    value = multi_task_variable.get_value('i', 123456)
+    value = multi_task.variable.get_value('i', 123456)
     assert multi_task.submit(task_producer_value, value).exception() is None
     assert multi_task.submit(task_consumer_value, value).exception() is None
 
@@ -342,11 +331,10 @@ def task_consumer_dict(obj: Dict):
 def test_task_dict():
     for mode in ['thread', 'process']:
         logger.warning('正在实例化 %s 模式的多任务类及多任务变量类', mode)
-        multi_task = MultiTask(mode, 2, logger)
-        multi_task_variable = MultiTaskVariable(mode)
+        multi_task = MultiTask(mode, max_workers=2, logger=logger)
 
         logger.warning('即将测试 %s 模式的 dict', mode)
-        dict_variable = multi_task_variable.get_dict({'a': 1})
+        dict_variable = multi_task.variable.get_dict({'a': 1})
         assert multi_task.submit(task_producer_dict, dict_variable).exception() is None
         assert multi_task.submit(task_consumer_dict, dict_variable).exception() is None
 
@@ -371,11 +359,10 @@ def task_consumer_list(obj: List):
 def test_task_list():
     for mode in ['thread', 'process']:
         logger.warning('正在实例化 %s 模式的多任务类及多任务变量类', mode)
-        multi_task = MultiTask(mode, 2, logger)
-        multi_task_variable = MultiTaskVariable(mode)
+        multi_task = MultiTask(mode, max_workers=2, logger=logger)
 
         logger.warning('即将测试 %s 模式的 list', mode)
-        list_variable = multi_task_variable.get_list([1])
+        list_variable = multi_task.variable.get_list([1])
         assert multi_task.submit(task_producer_list, list_variable).exception() is None
         assert multi_task.submit(task_consumer_list, list_variable).exception() is None
 
@@ -409,7 +396,7 @@ def main():
     test_task_namespace()
 
     logger.warning('=' * 80)
-    test_thread_array()
+    test_task_array()
 
     logger.warning('=' * 80)
     test_task_value()

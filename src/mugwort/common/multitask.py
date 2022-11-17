@@ -91,6 +91,11 @@ class MultiTaskVariable:
     MODE = ('thread', 'process')
 
     def __init__(self, mode: str):
+        """
+        初始化共享变量
+
+        :param mode: 共享变量模式，可选 thread / process 值
+        """
         self._mode = mode
 
         if self._mode not in self.MODE:
@@ -380,22 +385,22 @@ class MultiTask:
     模式区别
     ----------------------- -------------------------------------------------
     'thread'                无界线程池，即原生线程池
-    'thread-bounded'        有界线程池，对 submit 函数进行信号量限制的线程池
+    'thread' bounded        有界线程池，对 submit 函数进行信号量限制的线程池
     'process'               无界进程池，即原生进程池
-    'process-bounded'       有界进程池，对 submit 函数进行信号量限制的进程池
+    'process' bounded       有界进程池，对 submit 函数进行信号量限制的进程池
     ======================= =================================================
     """
-    MODE = ('thread', 'bounded-thread', 'process', 'bounded-process')
+    MODE = ('thread', 'process')
     EXECUTOR_MAP = {
-        'thread': _ThreadPoolExecutor, 'bounded-thread': _BoundedThreadPoolExecutor,
-        'process': _ProcessPoolExecutor, 'bounded-process': _BoundedProcessPoolExecutor,
+        'thread': [_ThreadPoolExecutor, _BoundedThreadPoolExecutor],
+        'process': [_ProcessPoolExecutor, _BoundedProcessPoolExecutor],
     }
 
-    def __init__(self, mode: str, max_workers: int = None, logger: Logger = None):
+    def __init__(self, mode: str, *, bounded: bool = False, max_workers: int = None, logger: Logger = None):
         """
         初始化任务池
 
-        :param mode: 执行器模式，可选 thread / bounded-thread / process / bounded-process 值
+        :param mode: 执行器模式，可选 thread / process 值
         :param max_workers: 执行器工人上限
         """
         self._mode = mode
@@ -406,12 +411,11 @@ class MultiTask:
             raise ValueError('mode is invalid')
 
         self._executor_total = 0
-        self._executor_pool = self.EXECUTOR_MAP[mode](max_workers=max_workers)
+        self._executor_pool = self.EXECUTOR_MAP[mode][bounded](max_workers=max_workers)
         self._logger.info('已初始化 %s 模式任务池，池大小：%d', mode, self._max_workers)
 
-        variable_mode = mode.split('-')[0]
-        self._variable = MultiTaskVariable(variable_mode)
-        self._logger.info('已初始化 %s 模式共享变量', variable_mode)
+        self._variable = MultiTaskVariable(self._mode)
+        self._logger.info('已初始化 %s 模式共享变量', self._mode)
 
     def __del__(self):
         if hasattr(self, '_executor_pool'):
