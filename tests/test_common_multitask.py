@@ -21,6 +21,28 @@ from mugwort import Logger, MultiTask
 logger = Logger('Test', level=Logger.INFO, verbose=True)
 
 
+def task_worker_bounded(tag: int):
+    logger.info('工人已启动，标记：%d', tag)
+
+    time.sleep(1)
+
+    logger.info('工人已退出')
+
+
+def test_task_bounded():
+    for mode in ['thread', 'process']:
+        logger.warning('正在实例化 %s 模式的多任务类及多任务变量类', mode)
+        multi_task = MultiTask(mode, bounded=True, max_workers=4, logger=logger)
+
+        logger.warning('即将测试 %s 模式的 bounded', mode)
+        futures = []
+        for i in range(8):
+            future = multi_task.submit(task_worker_bounded, i)
+            futures.append(future)
+        for future in futures:
+            assert future.exception(timeout=30) is None
+
+
 def task_worker_lock(obj: Lock):
     logger.info('工人已启动，对象类型: %s', type(obj))
 
