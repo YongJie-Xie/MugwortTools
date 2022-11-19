@@ -5,7 +5,7 @@
 @Contact     : fsswxyj@qq.com
 @DateTime    : 2022-09-15 14:58
 @Description : 基于各种算法实现的密码学工具
-@FileName    : x25519
+@FileName    : x25519_cryptor
 @License     : MIT License
 @ProjectName : MugwortTools
 @Software    : PyCharm

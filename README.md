@@ -279,7 +279,7 @@ print(validity, value.decode())
 - 代码示例
 
 ```python
-from mugwort.tools.proxy.clash import ClashProxy, ClashConfig
+from mugwort.tools.proxy.clash_proxy import ClashProxy, ClashConfig
 
 ClashProxy(ClashConfig(
     subscribe_link='https://airplane.com/clash-subscribe-link',

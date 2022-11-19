@@ -17,9 +17,9 @@ except ImportError:
         'Please execute `pip install mugwort[cryptor]` to install dependencies first.'
     )
 else:
-    from .aes import AESCryptor
-    from .des import TripleDESCryptor
-    from .rsa import RSACryptor
-    from .ed25519 import Ed25519Cryptor
-    from .x25519 import X25519Cryptor
-    from .totp import TOTPCryptor
+    from .aes_cryptor import AESCryptor
+    from .des_cryptor import TripleDESCryptor
+    from .rsa_cryptor import RSACryptor
+    from .ed25519_cryptor import Ed25519Cryptor
+    from .x25519_cryptor import X25519Cryptor
+    from .totp_cryptor import TOTPCryptor

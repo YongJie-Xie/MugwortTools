@@ -5,7 +5,7 @@
 @Contact     : fsswxyj@qq.com
 @DateTime    : 2022-09-18 18:07
 @Description : 支持订阅更新、节点切换、节点检测功能的 Clash 代理工具
-@FileName    : clash
+@FileName    : clash_proxy
 @License     : MIT License
 @ProjectName : MugwortTools
 @Software    : PyCharm
@@ -293,7 +293,8 @@ class ClashConfig:
 
             # 下载最新版本执行程序
             url = 'https://github.com/Dreamacro/clash/releases/download/%s/clash-windows-amd64-%s.zip' % (tag, tag)
-            self._logger.info('[ClashConfig] 正在下载代理程序，等待时间过长请手动下载\n下载地址：%s\n存放目录：%s', url, folder)
+            self._logger.info('[ClashConfig] 正在下载代理程序，耗时过多请手动下载\n下载地址：%s\n存放目录：%s', url,
+                              folder)
             response = requests.get(url)
             self._logger.info('[ClashConfig] 代理程序下载完毕，正在解压')
             buffer = io.BytesIO()
@@ -581,5 +582,5 @@ class ClashProxy:
             else:
                 self._logger.warning(line.strip())
             if 'MMDB' in line:
-                url = 'https://cdn.jsdelivr.net/gh/Dreamacro/maxmind-geoip@release/Country.mmdb'  # noqa
-                self._logger.info('[Clash] 代理程序正在下载 MMDB 文件\n下载地址：%s\n保存位置：%s', url, self._config.workdir)
+                url = 'https://cdn.jsdelivr.net/gh/Dreamacro/maxmind-geoip@release/Country.mmdb'
+                self._logger.info('[Clash] 正在下载 MMDB 文件\n下载地址：%s\n保存位置：%s', url, self._config.workdir)
