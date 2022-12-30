@@ -4,7 +4,7 @@
 @Author      : YongJie-Xie
 @Contact     : fsswxyj@qq.com
 @DateTime    : 2022-11-09 10:19
-@Description : 快速使用 Elasticsearch 的辅助工具
+@Description : 用于快速使用 Elasticsearch 的帮助工具
 @FileName    : elasticsearch
 @License     : MIT License
 @ProjectName : MugwortTools
@@ -507,7 +507,7 @@ class ElasticsearchHelper:
             **kwargs,
     ) -> t.Tuple[int, t.Dict[str, t.Any]]:
         """
-        批量操作
+        批量操作文档
 
         :param index: 目标索引
         :param operations: 操作列表
@@ -518,7 +518,7 @@ class ElasticsearchHelper:
         response = self._client.bulk(index=index, operations=operations, **kwargs)
         return response.meta.status, response.body
 
-    def docs_multi_get(
+    def docs_mget(
             self,
             *,
             index: t.Optional[str] = None,
@@ -651,7 +651,7 @@ class ElasticsearchHelper:
             **kwargs,
     ) -> t.Iterable[t.Tuple[bool, t.Dict[str, t.Any]]]:
         """
-        批量操作工具
+        快速操作工具
 
         :param actions: 操作列表
         :param chunk_size: 单词文档数量上限
