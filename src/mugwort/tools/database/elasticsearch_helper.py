@@ -20,13 +20,13 @@ try:
     from elasticsearch.helpers import streaming_bulk, parallel_bulk, scan
 except ImportError:
     raise ImportError(
-        'Tool `databases.elasticsearch` cannot be imported.',
-        'Please execute `pip install mugwort[databases-elasticsearch]` to install dependencies first.'
+        'Tool `database.elasticsearch` cannot be imported.',
+        'Please execute `pip install mugwort[database-elasticsearch]` to install dependencies first.'
     )
 
 
 class ElasticsearchHelper:
-    """快速使用 Elasticsearch 的辅助工具"""
+    """用于快速使用 Elasticsearch 的帮助工具"""
 
     def __init__(
             self,
@@ -67,7 +67,12 @@ class ElasticsearchHelper:
             index: t.Optional[t.Union[str, t.Union[t.List[str], t.Tuple[str, ...]]]] = None,
             **kwargs,
     ) -> bool:
-        """刷新索引"""
+        """
+        刷新索引
+
+        :param index: 目标索引
+        :return: 索引刷新结果
+        """
         self._logger.debug('refresh index: %s', index)
 
         try:
@@ -85,7 +90,12 @@ class ElasticsearchHelper:
             index: t.Union[str, t.Union[t.List[str], t.Tuple[str, ...]]],
             **kwargs,
     ) -> t.Optional[t.Dict[str, t.Any]]:
-        """查询索引"""
+        """
+        获取索引信息
+
+        :param index: 目标索引
+        :return: 索引信息
+        """
         self._logger.debug('get index: %s', index)
 
         try:
@@ -106,7 +116,15 @@ class ElasticsearchHelper:
             refresh_interval: t.Optional[str] = None,
             **kwargs,
     ) -> bool:
-        """创建索引"""
+        """
+        创建索引
+
+        :param index: 目标索引
+        :param number_of_shards: 主分片数量，默认使用服务器配置
+        :param number_of_replicas: 副本分片数量，默认使用服务器配置
+        :param refresh_interval: 分片刷新间隔，默认使用服务器配置
+        :return: 索引创建结果
+        """
         settings = kwargs.pop('settings', {})
         if number_of_shards is not None:
             settings['number_of_shards'] = number_of_shards
@@ -131,7 +149,12 @@ class ElasticsearchHelper:
             index: t.Union[str, t.Union[t.List[str], t.Tuple[str, ...]]],
             **kwargs,
     ) -> bool:
-        """删除索引"""
+        """
+        删除索引
+
+        :param index: 目标索引
+        :return: 索引删除结果
+        """
         self._logger.debug('delete index: %s', index)
 
         try:
@@ -149,7 +172,12 @@ class ElasticsearchHelper:
             index: t.Union[str, t.Union[t.List[str], t.Tuple[str, ...]]],
             **kwargs,
     ) -> bool:
-        """有无索引"""
+        """
+        判断是否存在索引
+
+        :param index: 目标索引
+        :return: 索引存在结果
+        """
         self._logger.debug('exists index: %s', index)
 
         try:
@@ -170,7 +198,13 @@ class ElasticsearchHelper:
             name: t.Optional[t.Union[str, t.Union[t.List[str], t.Tuple[str, ...]]]] = None,
             **kwargs,
     ) -> t.Optional[t.Dict[str, t.Any]]:
-        """查询索引别名"""
+        """
+        获取索引别名信息
+
+        :param index: 目标索引
+        :param name: 目标别名
+        :return: 索引别名信息
+        """
         self._logger.debug('get alias: index=%s, alias=%s', index, name)
 
         try:
@@ -189,7 +223,13 @@ class ElasticsearchHelper:
             name: str,
             **kwargs,
     ) -> bool:
-        """创建索引别名"""
+        """
+        创建索引别名
+
+        :param index: 目标索引
+        :param name: 目标别名
+        :return: 索引别名创建结果
+        """
         self._logger.debug('create alias: index=%s, alias=%s', index, name)
 
         try:
@@ -208,7 +248,13 @@ class ElasticsearchHelper:
             name: t.Union[str, t.Union[t.List[str], t.Tuple[str, ...]]],
             **kwargs,
     ) -> bool:
-        """删除索引别名"""
+        """
+        删除索引别名
+
+        :param index: 目标索引
+        :param name: 目标别名
+        :return: 索引别名删除结果
+        """
         self._logger.debug('delete alias: index=%s, alias=%s', index, name)
 
         try:
@@ -227,7 +273,13 @@ class ElasticsearchHelper:
             name: t.Union[str, t.Union[t.List[str], t.Tuple[str, ...]]],
             **kwargs,
     ) -> bool:
-        """有无索引别名"""
+        """
+        判断是否存在索引别名
+
+        :param index: 目标索引
+        :param name: 目标别名
+        :return: 索引别名存在结果
+        """
         self._logger.debug('exists alias: index=%s, alias=%s', index, name)
 
         try:
@@ -248,7 +300,13 @@ class ElasticsearchHelper:
             id: str,
             **kwargs,
     ) -> t.Optional[t.Dict[str, t.Any]]:
-        """查询文档"""
+        """
+        获取文档完整内容
+
+        :param index: 目标索引
+        :param id: 目标文档 id
+        :return: 文档完整内容
+        """
         self._logger.debug('get document: index=%s, id=%s', index, id)
 
         try:
@@ -267,7 +325,13 @@ class ElasticsearchHelper:
             id: str,
             **kwargs,
     ) -> t.Optional[t.Dict[str, t.Any]]:
-        """查询文档源数据"""
+        """
+        获取文档原始内容
+
+        :param index: 目标索引
+        :param id: 目标文档 id
+        :return: 文档原始内容
+        """
         self._logger.debug('get document source: index=%s, id=%s', index, id)
 
         try:
@@ -287,7 +351,14 @@ class ElasticsearchHelper:
             document: t.Mapping[str, t.Any],
             **kwargs,
     ) -> bool:
-        """创建文档"""
+        """
+        创建文档
+
+        :param index: 目标索引
+        :param id: 目标文档 id
+        :param document: 文档原始内容
+        :return: 文档创建结果
+        """
         self._logger.debug('create document: index=%s, id=%s', index, id)
 
         try:
@@ -306,7 +377,13 @@ class ElasticsearchHelper:
             id: str,
             **kwargs,
     ) -> bool:
-        """删除文档"""
+        """
+        删除文档
+
+        :param index: 目标索引
+        :param id: 目标文档 id
+        :return: 文档删除结果
+        """
         self._logger.debug('delete document: index=%s, id=%s', index, id)
 
         try:
@@ -326,7 +403,14 @@ class ElasticsearchHelper:
             document: t.Mapping[str, t.Any],
             **kwargs,
     ) -> bool:
-        """更新文档"""
+        """
+        更新文档
+
+        :param index: 目标索引
+        :param id: 目标文档 id
+        :param document: 文档更新内容
+        :return: 文档更新结果
+        """
         self._logger.debug('update document: index=%s, id=%s', index, id)
 
         try:
@@ -346,7 +430,14 @@ class ElasticsearchHelper:
             document: t.Mapping[str, t.Any],
             **kwargs,
     ) -> bool:
-        """创建或更新文档"""
+        """
+        创建或更新文档
+
+        :param index: 目标索引
+        :param id: 目标文档 id
+        :param document: 文档原始内容
+        :return: 文档创建或更新结果
+        """
         self._logger.debug('replace document: index=%s, id=%s', index, id)
 
         try:
@@ -365,7 +456,13 @@ class ElasticsearchHelper:
             id: str,
             **kwargs,
     ) -> bool:
-        """有无文档"""
+        """
+        判断是否存在文档
+
+        :param index: 目标索引
+        :param id: 目标文档 id
+        :return: 文档存在结果
+        """
         self._logger.debug('exists document: index=%s, id=%s', index, id)
 
         try:
@@ -383,7 +480,12 @@ class ElasticsearchHelper:
             index: t.Optional[t.Union[str, t.Union[t.List[str], t.Tuple[str, ...]]]] = None,
             **kwargs,
     ) -> t.Optional[int]:
-        """统计文档"""
+        """
+        统计文档
+
+        :param index: 目标索引
+        :return: 文档统计结果
+        """
         self._logger.debug('count document: %s', index)
 
         try:
@@ -404,7 +506,13 @@ class ElasticsearchHelper:
             operations: t.Union[t.List[t.Mapping[str, t.Any]], t.Tuple[t.Mapping[str, t.Any], ...]],
             **kwargs,
     ) -> t.Tuple[int, t.Dict[str, t.Any]]:
-        """批量操作"""
+        """
+        批量操作
+
+        :param index: 目标索引
+        :param operations: 操作列表
+        :return: 执行结果
+        """
         self._logger.debug('bulk documents: index=%s, len(operations)=%d', index, len(operations))
 
         response = self._client.bulk(index=index, operations=operations, **kwargs)
@@ -418,7 +526,14 @@ class ElasticsearchHelper:
             docs: t.Optional[t.Union[t.List[t.Mapping[str, t.Any]], t.Tuple[t.Mapping[str, t.Any], ...]]] = None,
             **kwargs,
     ) -> t.Tuple[int, t.Dict[str, t.Any]]:
-        """批量获取"""
+        """
+        批量获取文档
+
+        :param index: 目标索引
+        :param ids: 目标文档 id 列表
+        :param docs: 需要获取的文档
+        :return:
+        """
         if index is not None and ids is not None:
             self._logger.debug('get documents: index=%s, len(ids)=%d', index, len(ids))
             response = self._client.mget(index=index, ids=ids, **kwargs)
@@ -436,7 +551,13 @@ class ElasticsearchHelper:
             source: t.Mapping[str, t.Any],
             dest: t.Mapping[str, t.Any],
     ) -> t.Tuple[int, t.Dict[str, t.Any]]:
-        """重建索引"""
+        """
+        重建索引
+
+        :param source: 来源索引配置
+        :param dest: 目标索引配置
+        :return: 索引重建结果
+        """
         self._logger.debug('reindex documents: \nsource=%s\ndest=%d', source, dest)
 
         response = self._client.reindex(source=source, dest=dest)
@@ -456,7 +577,18 @@ class ElasticsearchHelper:
             source: t.Optional[t.Union[bool, t.Mapping[str, t.Any]]] = None,
             **kwargs,
     ) -> t.Tuple[int, t.Dict[str, t.Any]]:
-        """搜索索引"""
+        """
+        搜索索引
+
+        :param index: 目标索引
+        :param size: 搜索结果大小
+        :param query: 搜索目标
+        :param aggs: 聚合目标
+        :param q: 搜索字符串
+        :param scroll: 滚动搜索维持时长
+        :param source: 需要的原始字段
+        :return: 搜索结果
+        """
         self._logger.debug('search document: %s', index)
 
         response = self._client.search(
@@ -471,7 +603,13 @@ class ElasticsearchHelper:
             scroll: t.Optional[t.Union["t.Literal[-1]", "t.Literal[0]", str]] = None,
             **kwargs,
     ) -> t.Tuple[int, t.Dict[str, t.Any]]:
-        """滚动查询"""
+        """
+        滚动查询
+
+        :param scroll_id: 滚动查询 id
+        :param scroll: 滚动搜索维持时长
+        :return: 滚动查询结果
+        """
         self._logger.debug('scroll document: %s', scroll_id)
 
         response = self._client.scroll(scroll_id=scroll_id, scroll=scroll, **kwargs)
@@ -483,7 +621,12 @@ class ElasticsearchHelper:
             scroll_id: t.Optional[t.Union[str, t.Union[t.List[str], t.Tuple[str, ...]]]] = None,
             **kwargs,
     ) -> bool:
-        """清除滚动查询"""
+        """
+        清除滚动查询
+
+        :param scroll_id: 滚动查询 id
+        :return: 清除滚动查询结果
+        """
         self._logger.debug('clear scroll document: %s', scroll_id)
 
         try:
@@ -507,7 +650,16 @@ class ElasticsearchHelper:
             ignore_ok: bool = False,
             **kwargs,
     ) -> t.Iterable[t.Tuple[bool, t.Dict[str, t.Any]]]:
-        """批量操作工具"""
+        """
+        批量操作工具
+
+        :param actions: 操作列表
+        :param chunk_size: 单词文档数量上限
+        :param max_chunk_bytes: 单次传输大小上限
+        :param thread_count: 执行线程数量
+        :param ignore_ok: 是否忽略成功项
+        :return: 批量操作结果
+        """
         if thread_count > 1:
             for ok, info in parallel_bulk(
                     self._client, actions=actions, chunk_size=chunk_size, max_chunk_bytes=max_chunk_bytes,
@@ -539,7 +691,19 @@ class ElasticsearchHelper:
             get_source: bool = False,
             **kwargs,
     ) -> t.Iterable[t.Dict[str, t.Any]]:
-        """滚动搜索工具"""
+        """
+        滚动搜索工具
+
+        :param index: 目标索引
+        :param size: 搜索结果大小
+        :param query: 搜索目标
+        :param aggs: 聚合目标
+        :param q: 搜索字符串
+        :param scroll: 滚动搜索维持时长
+        :param source: 需要的原始字段
+        :param get_source: 是否仅获取原始文档
+        :return:
+        """
         for hit in scan(
                 self._client, query=query, scroll=scroll, size=size, index=index, aggs=aggs, q=q, source=source,
                 **kwargs,

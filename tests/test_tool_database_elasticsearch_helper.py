@@ -14,12 +14,12 @@
 import time
 
 from mugwort import Logger
-from mugwort.tools.databases.elasticsearch_helper import ElasticsearchHelper
+from mugwort.tools.database.elasticsearch_helper import ElasticsearchHelper
 
 logger = Logger('test')
 helper = ElasticsearchHelper('https://127.0.0.1:9200', ('elastic', '123456'), verify_certs=False, logger=logger)
 
-index = 'test_helper_%s' % time.time()
+index = 'test_helper_%s' % str(int(time.time()))
 alias = index + '_alias'
 
 
