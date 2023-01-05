@@ -412,7 +412,7 @@ class MultiTask:
 
         self._executor_total = 0
         self._executor_pool = self.EXECUTOR_MAP[mode][bounded](max_workers=max_workers)
-        self._logger.info('已初始化 %s 模式任务池，池大小：%d', mode, self._max_workers)
+        self._logger.info('已初始化 %s 模式任务池，池大小：%d', mode, self._executor_pool.max_workers)
 
         self._variable = MultiTaskVariable(self._mode)
         self._logger.info('已初始化 %s 模式共享变量', self._mode)
