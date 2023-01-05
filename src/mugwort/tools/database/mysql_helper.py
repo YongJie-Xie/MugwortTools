@@ -28,6 +28,10 @@ for module_name in ['MySQLdb', 'pymysql', 'mysql.connector']:
 else:
     raise ImportError('Creator not found, optional: `mysqlclient`, `pymysql`, `mysql-connector-python`.')
 
+__all__ = [
+    'MySQLHelper',
+]
+
 
 class MySQLHelper:
     """用于快速使用 MySQL 的帮助工具"""

@@ -20,6 +20,10 @@ except ImportError:
         'Please execute `pip install mugwort[database-mongodb]` to install dependencies first.'
     )
 
+__all__ = [
+    'MongoDBHelper',
+]
+
 
 class MongoDBHelper:
     """用于快速使用 MongoDB 的帮助工具"""

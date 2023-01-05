@@ -19,6 +19,10 @@ except ImportError as e:
         'Please execute `pip install mugwort[database-redis]` to install dependencies first.'
     )
 
+__all__ = [
+    'RedisHelper',
+]
+
 
 class RedisHelper:
     """用于快速使用 Redis 的帮助工具"""

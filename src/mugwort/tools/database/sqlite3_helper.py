@@ -13,6 +13,10 @@
 """
 import sqlite3
 
+__all__ = [
+    'SQLite3Helper',
+]
+
 
 class SQLite3Helper:
     """用于快速使用 SQLite3 的帮助工具"""

@@ -24,6 +24,10 @@ except ImportError:
         'Please execute `pip install mugwort[database-elasticsearch]` to install dependencies first.'
     )
 
+__all__ = [
+    'ElasticsearchHelper',
+]
+
 
 class ElasticsearchHelper:
     """用于快速使用 Elasticsearch 的帮助工具"""

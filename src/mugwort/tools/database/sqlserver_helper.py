@@ -20,6 +20,10 @@ except ImportError:
         'Please execute `pip install mugwort[database-sqlserver]` to install dependencies first.'
     )
 
+__all__ = [
+    'SQLServerHelper',
+]
+
 
 class SQLServerHelper:
     """用于快速使用 SQLServer 的帮助工具"""

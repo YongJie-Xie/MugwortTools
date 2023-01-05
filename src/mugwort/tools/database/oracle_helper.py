@@ -20,6 +20,10 @@ except ImportError as e:
         'Please execute `pip install mugwort[database-oracle]` to install dependencies first.'
     )
 
+__all__ = [
+    'OracleHelper',
+]
+
 
 class OracleHelper:
     """用于快速使用 Oracle 的帮助工具"""

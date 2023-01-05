@@ -20,6 +20,10 @@ except ImportError as e:
         'Please execute `pip install mugwort[database-hbase]` to install dependencies first.'
     )
 
+__all__ = [
+    'HBaseHelper',
+]
+
 
 class HBaseHelper:
     """用于快速使用 HBase 的帮助工具"""

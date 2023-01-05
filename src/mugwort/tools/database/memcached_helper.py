@@ -19,6 +19,10 @@ except ImportError as e:
         'Please execute `pip install mugwort[database-memcached]` to install dependencies first.'
     )
 
+__all__ = [
+    'MemcachedHelper',
+]
+
 
 class MemcachedHelper:
     """用于快速使用 Memcached 的帮助工具"""

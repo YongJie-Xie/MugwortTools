@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "mugwort"
-version = "0.5.3"
+version = "0.5.4"
 description = "一套由各种小脚本堆砌而成的工具集，主要用于爬虫和数据治理。"
 readme = "README.md"
 requires-python = ">=3.6.2,<4"

@@ -20,6 +20,10 @@ except ImportError as e:
         'Please execute `pip install mugwort[database-postgresql]` to install dependencies first.'
     )
 
+__all__ = [
+    'PostgreSQLHelper',
+]
+
 
 class PostgreSQLHelper:
     """用于快速使用 PostgreSQL 的帮助工具"""
