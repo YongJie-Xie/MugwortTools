@@ -584,3 +584,11 @@ class ClashProxy:
             if 'MMDB' in line:
                 url = 'https://cdn.jsdelivr.net/gh/Dreamacro/maxmind-geoip@release/Country.mmdb'
                 self._logger.info('[Clash] 正在下载 MMDB 文件\n下载地址：%s\n保存位置：%s', url, self._config.workdir)
+
+    @property
+    def config(self):
+        return self._config
+
+    @property
+    def manager(self):
+        return self._manager
