@@ -7,6 +7,7 @@ __all__ = [
     'Ed25519Cryptor',
     'X25519Cryptor',
     'TOTPCryptor',
+    'X509Cryptor',
 ]
 
 try:
@@ -23,3 +24,4 @@ else:
     from .ed25519_cryptor import Ed25519Cryptor
     from .x25519_cryptor import X25519Cryptor
     from .totp_cryptor import TOTPCryptor
+    from .x509_cryptor import X509Cryptor

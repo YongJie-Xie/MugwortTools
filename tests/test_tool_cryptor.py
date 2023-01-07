@@ -21,6 +21,7 @@ from mugwort.tools.cryptor import (
     Ed25519Cryptor,
     X25519Cryptor,
     TOTPCryptor,
+    X509Cryptor,
 )
 
 aes_key = b'this_is_aes_key.'
@@ -310,3 +311,34 @@ def test_totp_generate_verify():
 
     value = ''.join([str((int(x) + 1) % 10) for x in value.decode()]).encode()
     assert TOTPCryptor.verify(totp_key, value, timestamp) is False
+
+
+def test_x509_generate_self_signed_certificate_authority():
+    ca_public_key, ca_private_key = RSACryptor.generate()
+    ca_certificate = X509Cryptor.generate_self_signed_certificate_authority(
+        ca_public_key, ca_private_key
+    )
+    assert '-----BEGIN CERTIFICATE-----' in X509Cryptor.dump_certificate(ca_certificate).decode()
+    assert '-----BEGIN PRIVATE KEY-----' in X509Cryptor.dump_private_key(ca_private_key).decode()
+
+
+def test_x509_generate_certificate_signing_request():
+    csr_public_key, csr_private_key = RSACryptor.generate()
+    csr_certificate = X509Cryptor.generate_certificate_signing_request(
+        csr_private_key
+    )
+    assert '-----BEGIN CERTIFICATE REQUEST-----' in X509Cryptor.dump_certificate(csr_certificate).decode()
+    assert '-----BEGIN PRIVATE KEY-----' in X509Cryptor.dump_private_key(csr_private_key).decode()
+
+
+def test_x509_generate_self_signed_certificate():
+    ca_public_key, ca_private_key = RSACryptor.generate()
+    ca_certificate = X509Cryptor.generate_self_signed_certificate_authority(
+        ca_public_key, ca_private_key
+    )
+    my_public_key, my_private_key = RSACryptor.generate()
+    my_certificate = X509Cryptor.generate_self_signed_certificate(
+        my_public_key, my_private_key, ca_certificate=ca_certificate, ca_private_key=ca_private_key
+    )
+    assert '-----BEGIN CERTIFICATE-----' in X509Cryptor.dump_certificate(my_certificate).decode()
+    assert '-----BEGIN PRIVATE KEY-----' in X509Cryptor.dump_private_key(my_private_key).decode()
