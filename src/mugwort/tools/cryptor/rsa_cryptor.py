@@ -15,7 +15,7 @@ from typing import Optional, Tuple
 
 from cryptography import exceptions
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding as asymmetric_padding, rsa
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 __all__ = [
     'RSACryptor',
@@ -49,8 +49,8 @@ class RSACryptor:
         """
         data = public_key.encrypt(
             message,
-            asymmetric_padding.OAEP(
-                mgf=asymmetric_padding.MGF1(algorithm=hashes.SHA256()),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
                 label=None,
             )
@@ -68,8 +68,8 @@ class RSACryptor:
         """
         message = private_key.decrypt(
             message,
-            asymmetric_padding.OAEP(
-                mgf=asymmetric_padding.MGF1(algorithm=hashes.SHA256()),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
                 label=None,
             )
@@ -87,9 +87,9 @@ class RSACryptor:
         """
         signature = private_key.sign(
             message,
-            asymmetric_padding.PSS(
-                mgf=asymmetric_padding.MGF1(hashes.SHA256()),
-                salt_length=asymmetric_padding.PSS.MAX_LENGTH,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH,
             ),
             hashes.SHA256(),
         )
@@ -109,9 +109,9 @@ class RSACryptor:
             public_key.verify(
                 signature,
                 message,
-                asymmetric_padding.PSS(
-                    mgf=asymmetric_padding.MGF1(hashes.SHA256()),
-                    salt_length=asymmetric_padding.PSS.MAX_LENGTH,
+                padding.PSS(
+                    mgf=padding.MGF1(hashes.SHA256()),
+                    salt_length=padding.PSS.MAX_LENGTH,
                 ),
                 hashes.SHA256(),
             )
