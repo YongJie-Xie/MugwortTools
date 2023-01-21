@@ -12,9 +12,13 @@
 @Version     : 1.0
 """
 import typing as t
+from datetime import datetime, timezone, timedelta
 
 __all__ = [
     'get_filesize_for_human',
+    'get_iso8601_now',
+    'get_iso8601_by_timestamp',
+    'get_iso8601_by_datetime',
 ]
 
 
@@ -53,3 +57,48 @@ def get_filesize_for_human(filesize: t.Union[int, float, str], precision: int = 
     if negative:
         return '-' + value
     return value
+
+
+def get_iso8601_now(tz: timezone = None):
+    """
+    获取当前时间的符合 ISO 8601 标准的日期字符串
+
+    :param tz: 输出时使用的时区，默认为本地时区
+    :return: 符合 ISO 8601 标准的日期字符串
+    """
+    utc_datetime = datetime.utcnow().replace(tzinfo=timezone(timedelta(hours=0)))
+    return utc_datetime.astimezone(tz=tz).isoformat()
+
+
+def get_iso8601_by_timestamp(timestamp: t.Union[int, str], tz: timezone = None):
+    """
+    将时间戳格式化为 ISO 8601 标准的表达方式
+
+    tz = timezone(timedelta(hours=8))
+
+    :param timestamp: 待处理时间戳（单位：秒）
+    :param tz: 输出时使用的时区，默认为本地时区
+    :return: 符合 ISO 8601 标准的日期字符串
+    """
+    if not isinstance(timestamp, int):
+        timestamp = int(timestamp)
+    if not 32536850399 >= timestamp >= 0:
+        raise ValueError('时间戳超出处理范围')
+    utc_datetime = datetime.utcfromtimestamp(timestamp).replace(tzinfo=timezone(timedelta(hours=0)))
+    return utc_datetime.astimezone(tz=tz).isoformat()
+
+
+def get_iso8601_by_datetime(datetime_string: str, datetime_format: str = '%Y-%m-%d %H:%M:%S', tz: timezone = None):
+    """
+    将日期格式化为 ISO 8601 标准的表达方式
+
+    datetime_format = '%Y-%m-%d %H:%M:%S.%f'
+    tz = timezone(timedelta(hours=8))
+
+    :param datetime_string: 待处理日期字符串
+    :param datetime_format: 待处理日期字符串的格式
+    :param tz: 输出时使用的时区，默认为本地时区
+    :return: 符合 ISO 8601 标准的日期字符串
+    """
+    local_datetime = datetime.strptime(datetime_string, datetime_format)
+    return local_datetime.astimezone(tz=tz).isoformat()
