@@ -11,7 +11,7 @@
 @Software    : PyCharm
 @Version     : 1.0
 """
-from typing import Tuple
+import typing as t
 
 from cryptography import exceptions
 from cryptography.hazmat.primitives import serialization
@@ -28,7 +28,7 @@ class Ed25519Cryptor:
     """
 
     @staticmethod
-    def generate() -> Tuple[ed25519.Ed25519PublicKey, ed25519.Ed25519PrivateKey]:
+    def generate() -> t.Tuple[ed25519.Ed25519PublicKey, ed25519.Ed25519PrivateKey]:
         """
         密钥对生成函数
 

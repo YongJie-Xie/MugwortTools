@@ -16,7 +16,7 @@ import concurrent.futures
 import multiprocessing.managers
 import queue
 import threading
-from typing import Callable, Dict, List, Mapping, Sequence, TypeVar, Union
+import typing as t
 
 from .logger import Logger
 
@@ -25,9 +25,9 @@ __all__ = [
     'MultiTaskVariable',
 ]
 
-_T = TypeVar('_T')
-_KT = TypeVar('_KT')
-_VT = TypeVar('_VT')
+_T = t.TypeVar('_T')
+_KT = t.TypeVar('_KT')
+_VT = t.TypeVar('_VT')
 
 
 class _BoundedPoolExecutor(concurrent.futures.Executor):
@@ -150,7 +150,7 @@ class MultiTaskVariable:
             return self._manager.RLock()
         return threading.RLock()
 
-    def get_condition(self, lock: Union[threading.Lock, threading.RLock] = None) -> threading.Condition:
+    def get_condition(self, lock: t.Union[threading.Lock, threading.RLock] = None) -> threading.Condition:
         """
         条件对象：
             实现条件变量对象的类。一个条件变量对象允许一个或多个线程在被其它线程所通知之前进行等待。
@@ -235,7 +235,7 @@ class MultiTaskVariable:
             return self._manager.Event()
         return threading.Event()
 
-    def get_barrier(self, parties: int, action: Callable = None, timeout: int = None) -> threading.Barrier:
+    def get_barrier(self, parties: int, action: t.Callable = None, timeout: int = None) -> threading.Barrier:
         """
         栅栏对象：
             创建一个需要 parties 个线程的栅栏对象。如果提供了可调用的 action 参数，它会在所有线程被释放时在其中一个线程中自动调用。
@@ -306,7 +306,7 @@ class MultiTaskVariable:
             raise RuntimeError('Not supported in thread mode')
         return self._manager.Namespace()
 
-    def get_array(self, typecode: str, sequence: Sequence[_T]) -> Sequence[_T]:
+    def get_array(self, typecode: str, sequence: t.Sequence[_T]) -> t.Sequence[_T]:
         """
         数组代理对象：
             创建一个数组并返回它的代理。
@@ -340,7 +340,7 @@ class MultiTaskVariable:
             raise ValueError('typecode invalid')
         return self._manager.Value(typecode, value)
 
-    def get_dict(self, sequence: Mapping[_KT, _VT] = None) -> Dict[_KT, _VT]:
+    def get_dict(self, sequence: t.Mapping[_KT, _VT] = None) -> t.Dict[_KT, _VT]:
         """
         字典代理对象：
             创建一个共享的 dict 对象并返回它的代理。
@@ -358,7 +358,7 @@ class MultiTaskVariable:
             return self._manager.dict(sequence or {})
         return dict(sequence or {})
 
-    def get_list(self, sequence: Sequence[_T] = None) -> List[_T]:
+    def get_list(self, sequence: t.Sequence[_T] = None) -> t.List[_T]:
         """
         列表代理对象：
             创建一个共享的 list 对象并返回它的代理。
@@ -421,13 +421,13 @@ class MultiTask:
         if hasattr(self, '_executor_pool'):
             self.shutdown()
 
-    def submit(self, fn: Callable, *args, **kwargs) -> concurrent.futures.Future:
+    def submit(self, fn: t.Callable, *args, **kwargs) -> concurrent.futures.Future:
         future = self._executor_pool.submit(fn, *args, **kwargs)
         self._executor_total += 1
         self._logger.info('已提交第 %d 个任务', self._executor_total)
         return future
 
-    def submit_maxsize(self, fn: Callable, *args, **kwargs) -> List[concurrent.futures.Future]:
+    def submit_maxsize(self, fn: t.Callable, *args, **kwargs) -> t.List[concurrent.futures.Future]:
         futures = []
         for _ in range(self._max_workers - self._executor_total):
             future = self.submit(fn, *args, **kwargs)

@@ -11,7 +11,7 @@
 @Software    : PyCharm
 @Version     : 1.0
 """
-from typing import Optional, Tuple
+import typing as t
 
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -316,7 +316,7 @@ class AESCryptor:
     def gcm_encryptor(
             data: bytes, key: bytes, iv: bytes,
             associated_data: bytes,
-    ) -> Tuple[bytes, Optional[bytes]]:
+    ) -> t.Tuple[bytes, t.Optional[bytes]]:
         """
         采用 GCM 模式的 AES 加密函数
 

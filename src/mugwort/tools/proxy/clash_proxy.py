@@ -18,10 +18,10 @@ import random
 import re
 import socket
 import sys
+import typing as t
 import zipfile
 from subprocess import Popen, PIPE
 from threading import Thread
-from typing import Any, Callable, Dict, List, NoReturn, Optional
 
 from mugwort import Logger
 
@@ -56,7 +56,7 @@ class ClashConfig:
             *,
             # 代理程序相关配置
             subscribe_link: str = None,
-            subscribe_include_keywords: List[str] = None, subscribe_exclude_keywords: List[str] = None,
+            subscribe_include_keywords: t.List[str] = None, subscribe_exclude_keywords: t.List[str] = None,
             listen_host: str = '127.0.0.1', listen_port: int = 0,
             manage_host: str = '127.0.0.1', manage_port: int = 0,
             # 观察者相关配置
@@ -65,8 +65,8 @@ class ClashConfig:
             watcher_job_changer_enable: bool = True, watcher_job_changer_config: dict = None,  # 
             watcher_job_checker_enable: bool = True, watcher_job_checker_config: dict = None,  # 
             # 观察者【节点检测】功能的请求参数和校验函数
-            watcher_job_checker_requests_kwargs: Dict[str, Any] = None,
-            watcher_job_checker_verify_function: Callable = None,
+            watcher_job_checker_requests_kwargs: t.Dict[str, t.Any] = None,
+            watcher_job_checker_verify_function: t.Callable = None,
     ):
         """
         :param workdir: 工作目录，默认为当前用户的家目录
@@ -207,7 +207,7 @@ class ClashConfig:
         manage_port = self._manage_port
         return '%s://%s:%s' % (schema, manage_host, manage_port)
 
-    def update_subscribe(self) -> NoReturn:
+    def update_subscribe(self):
         """更新订阅功能的下载、解析和保存部分"""
         if self._subscribe_link is None:
             return
@@ -268,7 +268,7 @@ class ClashConfig:
                 times -= 1
         return False
 
-    def _download_executor(self, folder: str) -> NoReturn:
+    def _download_executor(self, folder: str):
         """下载 Clash 代理程序"""
         zfs = [file for file in os.listdir(folder) if re.match(r'clash-windows-amd64-v\d+.\d+.\d+.zip', file)]
         if zfs:
@@ -360,11 +360,11 @@ class ClashConfig:
         return self._watcher_job_checker_config
 
     @property
-    def watcher_job_checker_requests_kwargs(self) -> Dict[str, Any]:
+    def watcher_job_checker_requests_kwargs(self) -> t.Dict[str, t.Any]:
         return self._watcher_job_checker_requests_kwargs
 
     @property
-    def watcher_job_checker_verify_function(self) -> Callable:
+    def watcher_job_checker_verify_function(self) -> t.Callable:
         return self._watcher_job_checker_verify_function
 
 
@@ -441,7 +441,7 @@ class _ClashManager:
 
         return self.change_proxy_node(proxy)
 
-    def get_proxy_ip(self) -> Optional[str]:
+    def get_proxy_ip(self) -> t.Optional[str]:
         """获取代理节点的网络出口地址"""
         proxies = {'all': self._config.get_listen_address()}
         urls = ['http://ipinfo.io/ip', 'http://ifconfig.me', 'http://api.ipify.org', 'http://ifconfig.me']  # noqa
@@ -538,7 +538,7 @@ class ClashProxy:
             self._logger.exception(e)
             sys.exit(1)
 
-    def startup(self) -> NoReturn:
+    def startup(self):
         self._logger.info('[Clash] 启动代理程序')
         self._process = Popen(self._config.get_launch_command(), stdout=PIPE, bufsize=-1)
 
@@ -558,7 +558,7 @@ class ClashProxy:
             self._logger.info('[Clash] 启动代理程序观察者')
             self._watcher.startup()
 
-    def shutdown(self) -> NoReturn:
+    def shutdown(self):
         if self._config.watcher_enable:
             self._watcher.shutdown()
         if self._process:
@@ -571,7 +571,7 @@ class ClashProxy:
         """获取混合代理监听地址，支持 HTTP 和 SOCKS 协议"""
         return self._config.get_listen_address(schema)
 
-    def _log_listener(self) -> NoReturn:
+    def _log_listener(self):
         """捕获代理程序的日志"""
         for line in iter(io.TextIOWrapper(self._process.stdout)):
             if 'Only one usage of each socket address' in line:

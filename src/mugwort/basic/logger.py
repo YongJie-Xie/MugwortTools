@@ -17,8 +17,8 @@ import logging.handlers
 import os.path
 import sys
 import time
+import typing as t
 import warnings
-from typing import Union
 
 from colorama import init as colorama_init
 from colorama.ansi import Fore as AnsiFore, Style as AnsiStyle
@@ -44,7 +44,7 @@ class Logger:
             *,
             console: bool = True, color: bool = True,
             verbose: bool = False, rootpath: str = None,
-            logfile: Union[str, bool] = False, logfile_level: int = None,
+            logfile: t.Union[str, bool] = False, logfile_level: int = None,
             logfile_mode: str = 'a', logfile_encoding: str = 'UTF-8',
     ):
         """
@@ -271,7 +271,7 @@ class LoggerFormatter(logging.Formatter):
         return sio.getvalue()
 
     @classmethod
-    def _safe_unicode(cls, val: Union[str, bytes, None]) -> str:
+    def _safe_unicode(cls, val: t.Union[str, bytes, None]) -> str:
         try:
             if val is None or isinstance(val, str):
                 return val

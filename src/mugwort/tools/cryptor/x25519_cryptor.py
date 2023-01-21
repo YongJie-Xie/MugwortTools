@@ -11,7 +11,7 @@
 @Software    : PyCharm
 @Version     : 1.0
 """
-from typing import Tuple
+import typing as t
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import x25519
@@ -27,7 +27,7 @@ class X25519Cryptor:
     """
 
     @staticmethod
-    def generate() -> Tuple[x25519.X25519PublicKey, x25519.X25519PrivateKey]:
+    def generate() -> t.Tuple[x25519.X25519PublicKey, x25519.X25519PrivateKey]:
         """
         密钥对生成函数
 

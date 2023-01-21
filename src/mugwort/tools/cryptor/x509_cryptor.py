@@ -12,7 +12,7 @@
 @Version     : 1.0
 """
 import datetime
-from typing import List, Union, Optional
+import typing as t
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
@@ -38,7 +38,7 @@ class X509Cryptor:
             state_or_province_name: str = 'Washington',
             locality_name: str = 'District of Columbia',
             organization_name: str = 'White House',
-            alternative_name: List[str] = None,
+            alternative_name: t.List[str] = None,
     ) -> x509.CertificateSigningRequest:
         """
         创建证书签名请求（CSR）
@@ -80,10 +80,10 @@ class X509Cryptor:
             state_or_province_name: str = 'Washington',
             locality_name: str = 'District of Columbia',
             organization_name: str = 'White House',
-            alternative_names: List[str] = None,
+            alternative_names: t.List[str] = None,
             lifetime_days: int = 365,
-            ca_certificate: Optional[x509.Certificate] = None,
-            ca_private_key: Optional[rsa.RSAPrivateKey] = None,
+            ca_certificate: t.Optional[x509.Certificate] = None,
+            ca_private_key: t.Optional[rsa.RSAPrivateKey] = None,
     ) -> x509.Certificate:
         """
         创建自签名证书
@@ -176,7 +176,7 @@ class X509Cryptor:
         return certificate
 
     @staticmethod
-    def dump_certificate(certificate: Union[x509.Certificate, x509.CertificateSigningRequest]) -> bytes:
+    def dump_certificate(certificate: t.Union[x509.Certificate, x509.CertificateSigningRequest]) -> bytes:
         """
         证书转储函数
 
@@ -186,7 +186,7 @@ class X509Cryptor:
         return certificate.public_bytes(serialization.Encoding.PEM)
 
     @staticmethod
-    def dump_private_key(private_key: rsa.RSAPrivateKey, password: Optional[bytes] = None) -> bytes:
+    def dump_private_key(private_key: rsa.RSAPrivateKey, password: t.Optional[bytes] = None) -> bytes:
         """
         私钥转储函数
 

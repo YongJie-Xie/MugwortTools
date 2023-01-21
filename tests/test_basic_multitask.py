@@ -11,10 +11,10 @@
 @Software    : PyCharm
 @Version     : 1.0
 """
-from threading import Lock, RLock, Condition, Semaphore, BoundedSemaphore, Event, Barrier
 import time
+import typing as t
 from queue import Queue
-from typing import Dict, List
+from threading import Lock, RLock, Condition, Semaphore, BoundedSemaphore, Event, Barrier
 
 from mugwort import Logger, MultiTask
 
@@ -333,7 +333,7 @@ def test_task_value():
     assert multi_task.submit(task_consumer_value, value).exception() is None
 
 
-def task_producer_dict(obj: Dict):
+def task_producer_dict(obj: t.Dict):
     logger.info('工人已启动，对象类型: %s', type(obj))
 
     obj['b'] = 2
@@ -341,7 +341,7 @@ def task_producer_dict(obj: Dict):
     logger.info('工人已退出')
 
 
-def task_consumer_dict(obj: Dict):
+def task_consumer_dict(obj: t.Dict):
     logger.info('工人已启动，对象类型: %s', type(obj))
 
     if obj['a'] != 1 or obj['b'] != 2:
@@ -361,7 +361,7 @@ def test_task_dict():
         assert multi_task.submit(task_consumer_dict, dict_variable).exception() is None
 
 
-def task_producer_list(obj: List):
+def task_producer_list(obj: t.List):
     logger.info('工人已启动，对象类型: %s', type(obj))
 
     obj.append(2)
@@ -369,7 +369,7 @@ def task_producer_list(obj: List):
     logger.info('工人已退出')
 
 
-def task_consumer_list(obj: List):
+def task_consumer_list(obj: t.List):
     logger.info('工人已启动，对象类型: %s', type(obj))
 
     if obj[0] != 1 or obj[1] != 2:

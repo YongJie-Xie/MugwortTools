@@ -11,7 +11,7 @@
 @Software    : PyCharm
 @Version     : 1.0
 """
-from typing import Optional, Tuple
+import typing as t
 
 from cryptography import exceptions
 from cryptography.hazmat.primitives import hashes, serialization
@@ -28,7 +28,7 @@ class RSACryptor:
     """
 
     @staticmethod
-    def generate(key_size: int = 2048) -> Tuple[rsa.RSAPublicKey, rsa.RSAPrivateKey]:
+    def generate(key_size: int = 2048) -> t.Tuple[rsa.RSAPublicKey, rsa.RSAPrivateKey]:
         """
         密钥对生成函数，密钥长度建议为 2048
 
@@ -132,7 +132,7 @@ class RSACryptor:
         return public_key
 
     @staticmethod
-    def load_private_key(data: bytes, password: Optional[bytes] = None) -> rsa.RSAPrivateKey:
+    def load_private_key(data: bytes, password: t.Optional[bytes] = None) -> rsa.RSAPrivateKey:
         """
         私钥装载函数
 
@@ -158,7 +158,7 @@ class RSACryptor:
         return public_key_bytes
 
     @staticmethod
-    def dump_private_key(private_key: rsa.RSAPrivateKey, password: Optional[bytes] = None) -> bytes:
+    def dump_private_key(private_key: rsa.RSAPrivateKey, password: t.Optional[bytes] = None) -> bytes:
         """
         私钥转储函数
 
