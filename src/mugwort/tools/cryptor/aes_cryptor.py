@@ -51,10 +51,8 @@ class AESCryptor:
         :param block_size: 数据块大小，取值限制：[0, 255]
         :return: 密文数据
         """
-        padder = padding.PKCS7(block_size * 8).padder()
-        data = padder.update(data) + padder.finalize()
-        encryptor = Cipher(algorithms.AES(key), mode=modes.CBC(iv)).encryptor()
-        data = encryptor.update(data) + encryptor.finalize()
+        data = AESCryptor.pad_pkcs7(data, block_size)
+        data = AESCryptor.encrypt_cbc(data, key, iv)
         return data
 
     @staticmethod
@@ -68,10 +66,8 @@ class AESCryptor:
         :param block_size: 数据块大小，取值限制：[0, 255]
         :return: 明文数据
         """
-        decryptor = Cipher(algorithms.AES(key), mode=modes.CBC(iv)).decryptor()
-        data = decryptor.update(data) + decryptor.finalize()
-        unpadder = padding.PKCS7(block_size * 8).unpadder()
-        data = unpadder.update(data) + unpadder.finalize()
+        data = AESCryptor.decrypt_cbc(data, key, iv)
+        data = AESCryptor.unpad_pkcs7(data, block_size)
         return data
 
     @staticmethod
@@ -85,10 +81,8 @@ class AESCryptor:
         :param block_size: 数据块大小，取值限制：[0, 255]
         :return: 密文数据
         """
-        padder = padding.ANSIX923(block_size * 8).padder()
-        data = padder.update(data) + padder.finalize()
-        encryptor = Cipher(algorithms.AES(key), mode=modes.CBC(iv)).encryptor()
-        data = encryptor.update(data) + encryptor.finalize()
+        data = AESCryptor.pad_ansix923(data, block_size)
+        data = AESCryptor.encrypt_cbc(data, key, iv)
         return data
 
     @staticmethod
@@ -102,10 +96,8 @@ class AESCryptor:
         :param block_size: 数据块大小，取值限制：[0, 255]
         :return: 明文数据
         """
-        decryptor = Cipher(algorithms.AES(key), mode=modes.CBC(iv)).decryptor()
-        data = decryptor.update(data) + decryptor.finalize()
-        unpadder = padding.ANSIX923(block_size * 8).unpadder()
-        data = unpadder.update(data) + unpadder.finalize()
+        data = AESCryptor.decrypt_cbc(data, key, iv)
+        data = AESCryptor.unpad_ansix923(data, block_size)
         return data
 
     @staticmethod
@@ -118,8 +110,7 @@ class AESCryptor:
         :param tweak: 可变值，长度限制：16
         :return: 密文数据
         """
-        encryptor = Cipher(algorithms.AES(key), mode=modes.XTS(tweak)).encryptor()
-        data = encryptor.update(data) + encryptor.finalize()
+        data = AESCryptor.encrypt_xts(data, key, tweak)
         return data
 
     @staticmethod
@@ -132,8 +123,7 @@ class AESCryptor:
         :param tweak: 可变值，长度限制：16
         :return: 明文数据
         """
-        decryptor = Cipher(algorithms.AES(key), mode=modes.XTS(tweak)).decryptor()
-        data = decryptor.update(data) + decryptor.finalize()
+        data = AESCryptor.decrypt_xts(data, key, tweak)
         return data
 
     @staticmethod
@@ -146,10 +136,8 @@ class AESCryptor:
         :param block_size: 数据块大小，取值限制：[0, 255]
         :return: 密文数据
         """
-        padder = padding.PKCS7(block_size * 8).padder()
-        data = padder.update(data) + padder.finalize()
-        encryptor = Cipher(algorithms.AES(key), mode=modes.ECB()).encryptor()
-        data = encryptor.update(data) + encryptor.finalize()
+        data = AESCryptor.pad_pkcs7(data, block_size)
+        data = AESCryptor.encrypt_ecb(data, key)
         return data
 
     @staticmethod
@@ -162,10 +150,8 @@ class AESCryptor:
         :param block_size: 数据块大小，取值限制：[0, 255]
         :return: 明文数据
         """
-        decryptor = Cipher(algorithms.AES(key), mode=modes.ECB()).decryptor()
-        data = decryptor.update(data) + decryptor.finalize()
-        unpadder = padding.PKCS7(block_size * 8).unpadder()
-        data = unpadder.update(data) + unpadder.finalize()
+        data = AESCryptor.decrypt_ecb(data, key)
+        data = AESCryptor.unpad_pkcs7(data, block_size)
         return data
 
     @staticmethod
@@ -178,10 +164,8 @@ class AESCryptor:
         :param block_size: 数据块大小，取值限制：[0, 255]
         :return: 密文数据
         """
-        padder = padding.ANSIX923(block_size * 8).padder()
-        data = padder.update(data) + padder.finalize()
-        encryptor = Cipher(algorithms.AES(key), mode=modes.ECB()).encryptor()
-        data = encryptor.update(data) + encryptor.finalize()
+        data = AESCryptor.pad_ansix923(data, block_size)
+        data = AESCryptor.encrypt_ecb(data, key)
         return data
 
     @staticmethod
@@ -194,10 +178,8 @@ class AESCryptor:
         :param block_size: 数据块大小，取值限制：[0, 255]
         :return: 明文数据
         """
-        decryptor = Cipher(algorithms.AES(key), mode=modes.ECB()).decryptor()
-        data = decryptor.update(data) + decryptor.finalize()
-        unpadder = padding.ANSIX923(block_size * 8).unpadder()
-        data = unpadder.update(data) + unpadder.finalize()
+        data = AESCryptor.decrypt_ecb(data, key)
+        data = AESCryptor.unpad_ansix923(data, block_size)
         return data
 
     @staticmethod
@@ -210,8 +192,7 @@ class AESCryptor:
         :param iv: 初始化向量，长度限制：16
         :return: 密文数据
         """
-        encryptor = Cipher(algorithms.AES(key), mode=modes.OFB(iv)).encryptor()
-        data = encryptor.update(data) + encryptor.finalize()
+        data = AESCryptor.encrypt_ofb(data, key, iv)
         return data
 
     @staticmethod
@@ -224,8 +205,7 @@ class AESCryptor:
         :param iv: 初始化向量，长度限制：16
         :return: 明文数据
         """
-        decryptor = Cipher(algorithms.AES(key), mode=modes.OFB(iv)).decryptor()
-        data = decryptor.update(data) + decryptor.finalize()
+        data = AESCryptor.decrypt_ofb(data, key, iv)
         return data
 
     @staticmethod
@@ -238,8 +218,7 @@ class AESCryptor:
         :param iv: 初始化向量，长度限制：16
         :return: 密文数据
         """
-        encryptor = Cipher(algorithms.AES(key), mode=modes.CFB(iv)).encryptor()
-        data = encryptor.update(data) + encryptor.finalize()
+        data = AESCryptor.encrypt_cfb(data, key, iv)
         return data
 
     @staticmethod
@@ -252,8 +231,7 @@ class AESCryptor:
         :param iv: 初始化向量，长度限制：16
         :return: 明文数据
         """
-        decryptor = Cipher(algorithms.AES(key), mode=modes.CFB(iv)).decryptor()
-        data = decryptor.update(data) + decryptor.finalize()
+        data = AESCryptor.decrypt_cfb(data, key, iv)
         return data
 
     @staticmethod
@@ -266,8 +244,7 @@ class AESCryptor:
         :param iv: 初始化向量，长度限制：16
         :return: 密文数据
         """
-        encryptor = Cipher(algorithms.AES(key), mode=modes.CFB8(iv)).encryptor()
-        data = encryptor.update(data) + encryptor.finalize()
+        data = AESCryptor.encrypt_cfb8(data, key, iv)
         return data
 
     @staticmethod
@@ -280,8 +257,7 @@ class AESCryptor:
         :param iv: 初始化向量，长度限制：16
         :return: 明文数据
         """
-        decryptor = Cipher(algorithms.AES(key), mode=modes.CFB8(iv)).decryptor()
-        data = decryptor.update(data) + decryptor.finalize()
+        data = AESCryptor.decrypt_cfb8(data, key, iv)
         return data
 
     @staticmethod
@@ -294,8 +270,7 @@ class AESCryptor:
         :param nonce: 随机值，长度限制：16
         :return: 密文数据
         """
-        encryptor = Cipher(algorithms.AES(key), mode=modes.CTR(nonce)).encryptor()
-        data = encryptor.update(data) + encryptor.finalize()
+        data = AESCryptor.encrypt_ctr(data, key, nonce)
         return data
 
     @staticmethod
@@ -308,8 +283,7 @@ class AESCryptor:
         :param nonce: 随机值，长度限制：16
         :return: 明文数据
         """
-        decryptor = Cipher(algorithms.AES(key), mode=modes.CTR(nonce)).decryptor()
-        data = decryptor.update(data) + decryptor.finalize()
+        data = AESCryptor.decrypt_ctr(data, key, nonce)
         return data
 
     @staticmethod
@@ -326,11 +300,8 @@ class AESCryptor:
         :param associated_data: 附加数据
         :return: 密文数据、附加数据标签
         """
-        encryptor = Cipher(algorithms.AES(key), mode=modes.GCM(iv)).encryptor()
-        if associated_data:
-            encryptor.authenticate_additional_data(associated_data)
-        data = encryptor.update(data) + encryptor.finalize()
-        return data, encryptor.tag
+        data, tag = AESCryptor.encrypt_gcm(data, key, iv, associated_data)
+        return data, tag
 
     @staticmethod
     def gcm_decryptor(
@@ -348,8 +319,116 @@ class AESCryptor:
         :param min_tag_length: 附加数据标签的最小长度，取值限制：[4, 16]
         :return: 明文数据
         """
+        data = AESCryptor.decrypt_gcm(data, key, iv, associated_data, tag, min_tag_length)
+        return data
+
+    @staticmethod
+    def pad_pkcs7(data: bytes, block_size: int = 16) -> bytes:
+        padder = padding.PKCS7(block_size * 8).padder()
+        return padder.update(data) + padder.finalize()
+
+    @staticmethod
+    def unpad_pkcs7(data: bytes, block_size: int = 16) -> bytes:
+        unpadder = padding.PKCS7(block_size * 8).unpadder()
+        return unpadder.update(data) + unpadder.finalize()
+
+    @staticmethod
+    def pad_ansix923(data: bytes, block_size: int = 16) -> bytes:
+        padder = padding.ANSIX923(block_size * 8).padder()
+        return padder.update(data) + padder.finalize()
+
+    @staticmethod
+    def unpad_ansix923(data: bytes, block_size: int = 16) -> bytes:
+        unpadder = padding.ANSIX923(block_size * 8).unpadder()
+        return unpadder.update(data) + unpadder.finalize()
+
+    @staticmethod
+    def encrypt_cbc(data: bytes, key: bytes, iv: bytes) -> bytes:
+        encryptor = Cipher(algorithms.AES(key), mode=modes.CBC(iv)).encryptor()
+        return encryptor.update(data) + encryptor.finalize()
+
+    @staticmethod
+    def decrypt_cbc(data: bytes, key: bytes, iv: bytes) -> bytes:
+        decryptor = Cipher(algorithms.AES(key), mode=modes.CBC(iv)).decryptor()
+        return decryptor.update(data) + decryptor.finalize()
+
+    @staticmethod
+    def encrypt_xts(data: bytes, key: bytes, tweak: bytes) -> bytes:
+        encryptor = Cipher(algorithms.AES(key), mode=modes.XTS(tweak)).encryptor()
+        return encryptor.update(data) + encryptor.finalize()
+
+    @staticmethod
+    def decrypt_xts(data: bytes, key: bytes, tweak: bytes) -> bytes:
+        decryptor = Cipher(algorithms.AES(key), mode=modes.XTS(tweak)).decryptor()
+        return decryptor.update(data) + decryptor.finalize()
+
+    @staticmethod
+    def encrypt_ecb(data: bytes, key: bytes) -> bytes:
+        encryptor = Cipher(algorithms.AES(key), mode=modes.ECB()).encryptor()
+        return encryptor.update(data) + encryptor.finalize()
+
+    @staticmethod
+    def decrypt_ecb(data: bytes, key: bytes) -> bytes:
+        decryptor = Cipher(algorithms.AES(key), mode=modes.ECB()).decryptor()
+        return decryptor.update(data) + decryptor.finalize()
+
+    @staticmethod
+    def encrypt_ofb(data: bytes, key: bytes, iv: bytes) -> bytes:
+        encryptor = Cipher(algorithms.AES(key), mode=modes.OFB(iv)).encryptor()
+        return encryptor.update(data) + encryptor.finalize()
+
+    @staticmethod
+    def decrypt_ofb(data: bytes, key: bytes, iv: bytes) -> bytes:
+        decryptor = Cipher(algorithms.AES(key), mode=modes.OFB(iv)).decryptor()
+        return decryptor.update(data) + decryptor.finalize()
+
+    @staticmethod
+    def encrypt_cfb(data: bytes, key: bytes, iv: bytes) -> bytes:
+        encryptor = Cipher(algorithms.AES(key), mode=modes.CFB(iv)).encryptor()
+        return encryptor.update(data) + encryptor.finalize()
+
+    @staticmethod
+    def decrypt_cfb(data: bytes, key: bytes, iv: bytes) -> bytes:
+        decryptor = Cipher(algorithms.AES(key), mode=modes.CFB(iv)).decryptor()
+        return decryptor.update(data) + decryptor.finalize()
+
+    @staticmethod
+    def encrypt_cfb8(data: bytes, key: bytes, iv: bytes) -> bytes:
+        encryptor = Cipher(algorithms.AES(key), mode=modes.CFB8(iv)).encryptor()
+        return encryptor.update(data) + encryptor.finalize()
+
+    @staticmethod
+    def decrypt_cfb8(data: bytes, key: bytes, iv: bytes) -> bytes:
+        decryptor = Cipher(algorithms.AES(key), mode=modes.CFB8(iv)).decryptor()
+        return decryptor.update(data) + decryptor.finalize()
+
+    @staticmethod
+    def encrypt_ctr(data: bytes, key: bytes, nonce: bytes):
+        encryptor = Cipher(algorithms.AES(key), mode=modes.CTR(nonce)).encryptor()
+        return encryptor.update(data) + encryptor.finalize()
+
+    @staticmethod
+    def decrypt_ctr(data: bytes, key: bytes, nonce: bytes) -> bytes:
+        decryptor = Cipher(algorithms.AES(key), mode=modes.CTR(nonce)).decryptor()
+        return decryptor.update(data) + decryptor.finalize()
+
+    @staticmethod
+    def encrypt_gcm(
+            data: bytes, key: bytes, iv: bytes,
+            associated_data: bytes,
+    ) -> t.Tuple[bytes, t.Optional[bytes]]:
+        encryptor = Cipher(algorithms.AES(key), mode=modes.GCM(iv)).encryptor()
+        if associated_data:
+            encryptor.authenticate_additional_data(associated_data)
+        data = encryptor.update(data) + encryptor.finalize()
+        return data, encryptor.tag
+
+    @staticmethod
+    def decrypt_gcm(
+            data: bytes, key: bytes, iv: bytes,
+            associated_data: bytes, tag: bytes, min_tag_length: int = 16,
+    ) -> bytes:
         decryptor = Cipher(algorithms.AES(key), mode=modes.GCM(iv, tag, min_tag_length)).decryptor()
         if associated_data:
             decryptor.authenticate_additional_data(associated_data)
-        data = decryptor.update(data) + decryptor.finalize()
-        return data
+        return decryptor.update(data) + decryptor.finalize()
