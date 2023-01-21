@@ -108,21 +108,27 @@ class Logger:
         return self._logger
 
     def debug(self, msg, *args, **kwargs):
+        msg, *args = self._auto_formatter(msg, *args)
         self._logger.debug(msg, *args, **kwargs)
 
     def info(self, msg, *args, **kwargs):
+        msg, *args = self._auto_formatter(msg, *args)
         self._logger.info(msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
+        msg, *args = self._auto_formatter(msg, *args)
         self._logger.warning(msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
+        msg, *args = self._auto_formatter(msg, *args)
         self._logger.error(msg, *args, **kwargs)
 
     def exception(self, msg, *args, exc_info=True, **kwargs):
+        msg, *args = self._auto_formatter(msg, *args)
         self._logger.error(msg, *args, exc_info=exc_info, **kwargs)
 
     def critical(self, msg, *args, **kwargs):
+        msg, *args = self._auto_formatter(msg, *args)
         self._logger.critical(msg, *args, **kwargs)
 
     @classmethod
@@ -132,6 +138,12 @@ class Logger:
             return True
         # TODO: 检测 Linux / MacOS 环境的支持情况
         return hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
+
+    @classmethod
+    def _auto_formatter(cls, msg, *args):
+        if not isinstance(msg, str) and args:
+            return ' '.join(['%s'] * (len(args) + 1)), msg, *args
+        return msg, *args
 
 
 class LoggerFormatter(logging.Formatter):
