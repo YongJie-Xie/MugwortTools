@@ -59,6 +59,9 @@ all = [
 cryptor = [
     "cryptography",
 ]
+data-geography = [
+    "scipy",
+]
 database-elasticsearch = [
     "elasticsearch",
 ]
