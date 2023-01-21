@@ -13,8 +13,19 @@
 """
 import typing as t
 
+__all__ = [
+    'get_filesize_for_human',
+]
 
-def filesizeformat(filesize: t.Union[int, float, str], precision: int = 1) -> str:
+
+def get_filesize_for_human(filesize: t.Union[int, float, str], precision: int = 1) -> str:
+    """
+    将文件大小处理为人类可读的格式
+
+    :param filesize: 待处理文件大小
+    :param precision: 保留小数点后的位数
+    :return: 人类可读的文件大小
+    """
     try:
         filesize = int(filesize)
     except (TypeError, ValueError, UnicodeDecodeError):
@@ -27,17 +38,17 @@ def filesizeformat(filesize: t.Union[int, float, str], precision: int = 1) -> st
         filesize = -filesize
 
     if filesize < kb:
-        value = '1 byte' if filesize == 1 else '{} bytes'.format(filesize)
+        value = '1 Byte' if filesize == 1 else '{} Bytes'.format(filesize)
     elif filesize < mb:
-        value = '{:.{precision}f} KB'.format(filesize / kb, precision=precision)
+        value = '{:.{precision}f} KiB'.format(filesize / kb, precision=precision)
     elif filesize < gb:
-        value = '{:.{precision}f} MB'.format(filesize / mb, precision=precision)
+        value = '{:.{precision}f} MiB'.format(filesize / mb, precision=precision)
     elif filesize < tb:
-        value = '{:.{precision}f} GB'.format(filesize / gb, precision=precision)
+        value = '{:.{precision}f} GiB'.format(filesize / gb, precision=precision)
     elif filesize < pb:
-        value = '{:.{precision}f} TB'.format(filesize / tb, precision=precision)
+        value = '{:.{precision}f} TiB'.format(filesize / tb, precision=precision)
     else:
-        value = '{:.{precision}f} PB'.format(filesize / pb, precision=precision)
+        value = '{:.{precision}f} PiB'.format(filesize / pb, precision=precision)
 
     if negative:
         return '-' + value

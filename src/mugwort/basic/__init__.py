@@ -4,11 +4,11 @@ __all__ = [
     'Logger',
     'MultiTask',
     'MultiTaskVariable',
-    'filesizeformat',
+    'get_filesize_for_human',
 ]
 
 from .logger import Logger
 from .multitask import MultiTask, MultiTaskVariable
 from .misc import (
-    filesizeformat,
+    get_filesize_for_human,
 )
