@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 @Author      : YongJie-Xie
@@ -9,7 +8,7 @@
 @License     : MIT License
 @ProjectName : MugwortTools
 @Software    : PyCharm
-@Version     : 1.1
+@Version     : 1.1.1
 """
 import io
 import logging
@@ -25,7 +24,19 @@ from colorama.ansi import Fore as AnsiFore, Style as AnsiStyle
 
 __all__ = [
     'Logger',
+    'DEBUG',
+    'INFO',
+    'WARNING',
+    'ERROR',
+    'CRITICAL',
 ]
+
+# 支持的日志等级
+DEBUG = logging.DEBUG
+INFO = logging.INFO
+WARNING = logging.WARNING
+ERROR = logging.ERROR
+CRITICAL = logging.CRITICAL
 
 
 class Logger:
@@ -33,19 +44,25 @@ class Logger:
     支持控制台输出和文件输出的日志工具，支持 ANSI 颜色，日志样式参考 SpringBoot 项目。
     """
     # 支持的日志等级
-    CRITICAL = logging.CRITICAL
-    ERROR = logging.ERROR
-    WARNING = logging.WARNING
-    INFO = logging.INFO
     DEBUG = logging.DEBUG
+    INFO = logging.INFO
+    WARNING = logging.WARNING
+    ERROR = logging.ERROR
+    CRITICAL = logging.CRITICAL
 
     def __init__(
-            self, name: str = 'root', level: int = logging.INFO,
+            self,
+            name: str = 'root',
+            level: int = logging.INFO,
             *,
-            console: bool = True, color: bool = True,
-            verbose: bool = False, rootpath: str = None,
-            logfile: t.Union[str, bool] = False, logfile_level: int = None,
-            logfile_mode: str = 'a', logfile_encoding: str = 'UTF-8',
+            console: bool = True,
+            color: bool = True,
+            verbose: bool = False,
+            rootpath: t.Optional[str] = None,
+            logfile: t.Union[str, bool] = False,
+            logfile_level: t.Optional[int] = None,
+            logfile_mode: str = 'a',
+            logfile_encoding: str = 'UTF-8',
     ):
         """
         初始化日志工具
@@ -107,27 +124,27 @@ class Logger:
     def logger(self):
         return self._logger
 
-    def debug(self, msg, *args, **kwargs):
+    def debug(self, msg: t.Union[str, t.Any], *args: t.Any, **kwargs: t.Any):
         msg, *args = self._auto_formatter(msg, *args)
         self._logger.debug(msg, *args, **kwargs)
 
-    def info(self, msg, *args, **kwargs):
+    def info(self, msg: t.Union[str, t.Any], *args: t.Any, **kwargs: t.Any):
         msg, *args = self._auto_formatter(msg, *args)
         self._logger.info(msg, *args, **kwargs)
 
-    def warning(self, msg, *args, **kwargs):
+    def warning(self, msg: t.Union[str, t.Any], *args: t.Any, **kwargs: t.Any):
         msg, *args = self._auto_formatter(msg, *args)
         self._logger.warning(msg, *args, **kwargs)
 
-    def error(self, msg, *args, **kwargs):
+    def error(self, msg: t.Union[str, t.Any], *args: t.Any, **kwargs: t.Any):
         msg, *args = self._auto_formatter(msg, *args)
         self._logger.error(msg, *args, **kwargs)
 
-    def exception(self, msg, *args, exc_info=True, **kwargs):
+    def exception(self, msg: t.Union[str, t.Any], *args: t.Any, exc_info=True, **kwargs: t.Any):
         msg, *args = self._auto_formatter(msg, *args)
         self._logger.error(msg, *args, exc_info=exc_info, **kwargs)
 
-    def critical(self, msg, *args, **kwargs):
+    def critical(self, msg: t.Union[str, t.Any], *args: t.Any, **kwargs: t.Any):
         msg, *args = self._auto_formatter(msg, *args)
         self._logger.critical(msg, *args, **kwargs)
 
@@ -140,10 +157,10 @@ class Logger:
         return hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
 
     @classmethod
-    def _auto_formatter(cls, msg, *args):
+    def _auto_formatter(cls, msg: t.Union[str, t.Any], *args: t.Any):
         if not isinstance(msg, str) and args:
-            return ' '.join(['%s'] * (len(args) + 1)), msg, *args
-        return msg, *args
+            return (' '.join(['%s'] * (len(args) + 1)), msg, *args)
+        return (msg, *args)
 
 
 class LoggerFormatter(logging.Formatter):
@@ -161,7 +178,13 @@ class LoggerFormatter(logging.Formatter):
     _srcfile = os.path.normcase(__file__)
     _location_cache = {}
 
-    def __init__(self, *, color: bool = True, verbose: bool = True, rootpath: str = None):
+    def __init__(
+            self,
+            *,
+            color: bool = True,
+            verbose: bool = True,
+            rootpath: t.Optional[str] = None,
+    ):
         self._color = color
         self._verbose = verbose
         if rootpath:
