@@ -74,19 +74,19 @@ class X509Cryptor:
     @staticmethod
     def generate_self_signed_certificate(
             certificate_public_key: rsa.RSAPublicKey,
-            certificate_private_key: rsa.RSAPrivateKey = None,
+            certificate_private_key: t.Optional[rsa.RSAPrivateKey] = None,
             common_name: str = 'example.com',
             country_name: str = 'US',
             state_or_province_name: str = 'Washington',
             locality_name: str = 'District of Columbia',
             organization_name: str = 'White House',
-            alternative_names: t.List[str] = None,
+            alternative_names: t.Optional[t.List[str]] = None,
             lifetime_days: int = 365,
             ca_certificate: t.Optional[x509.Certificate] = None,
             ca_private_key: t.Optional[rsa.RSAPrivateKey] = None,
     ) -> x509.Certificate:
         """
-        创建自签名证书
+        创建自签名证书（Cert）
 
         :param certificate_public_key: 证书公钥
         :param certificate_private_key: 证书私钥
@@ -102,9 +102,9 @@ class X509Cryptor:
         :return: 自签名证书
         """
         if any([certificate_private_key, ca_private_key]) is False:
-            raise RuntimeError('')
+            raise RuntimeError('缺少证书签名所需的私钥')
         if any([ca_certificate, ca_private_key]) and all([ca_certificate, ca_private_key]) is False:
-            raise RuntimeError('证书颁发机构参数不正确')
+            raise RuntimeError('证书颁发机构的参数不合法')
 
         subject_name = issuer_name = x509.Name([
             x509.NameAttribute(NameOID.COMMON_NAME, common_name),
@@ -174,6 +174,40 @@ class X509Cryptor:
             .sign(certificate_private_key, hashes.SHA256())
         )
         return certificate
+
+    @staticmethod
+    def load_certificate_signing_request(data: bytes) -> x509.CertificateSigningRequest:
+        """
+        证书签名请求装载函数
+
+        :param data: 证书签名请求文件内容，格式为：PEM
+        :return: 证书签名请求对象
+        """
+        certificate = x509.load_pem_x509_csr(data)
+        return certificate
+
+    @staticmethod
+    def load_certificate(data: bytes) -> x509.Certificate:
+        """
+        证书装载函数
+
+        :param data: 证书文件内容，格式为：PEM
+        :return: 证书对象
+        """
+        certificate = x509.load_pem_x509_certificate(data)
+        return certificate
+
+    @staticmethod
+    def load_private_key(data: bytes, password: t.Optional[bytes] = None) -> rsa.RSAPrivateKey:
+        """
+        私钥装载函数
+
+        :param data: 私钥文件内容，格式为：PEM
+        :param password: 私钥密码
+        :return: 私钥对象
+        """
+        private_key = serialization.load_pem_private_key(data, password)
+        return private_key
 
     @staticmethod
     def dump_certificate(certificate: t.Union[x509.Certificate, x509.CertificateSigningRequest]) -> bytes:
