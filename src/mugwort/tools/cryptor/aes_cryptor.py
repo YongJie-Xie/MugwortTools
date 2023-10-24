@@ -9,7 +9,7 @@
 @License     : MIT License
 @ProjectName : MugwortTools
 @Software    : PyCharm
-@Version     : 1.0
+@Version     : 1.0.0
 """
 import typing as t
 
@@ -414,7 +414,9 @@ class AESCryptor:
 
     @staticmethod
     def encrypt_gcm(
-            data: bytes, key: bytes, iv: bytes,
+            data: bytes,
+            key: bytes,
+            iv: bytes,
             associated_data: bytes,
     ) -> t.Tuple[bytes, t.Optional[bytes]]:
         encryptor = Cipher(algorithms.AES(key), mode=modes.GCM(iv)).encryptor()
@@ -425,8 +427,12 @@ class AESCryptor:
 
     @staticmethod
     def decrypt_gcm(
-            data: bytes, key: bytes, iv: bytes,
-            associated_data: bytes, tag: bytes, min_tag_length: int = 16,
+            data: bytes,
+            key: bytes,
+            iv: bytes,
+            associated_data: bytes,
+            tag: bytes,
+            min_tag_length: int = 16,
     ) -> bytes:
         decryptor = Cipher(algorithms.AES(key), mode=modes.GCM(iv, tag, min_tag_length)).decryptor()
         if associated_data:
