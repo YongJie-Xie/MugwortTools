@@ -21,6 +21,7 @@ __all__ = [
     'get_iso8601_from_timestamp',
     'codecs',
     'recovery_garbled_text',
+    'list_slicer',
 ]
 
 
@@ -154,3 +155,28 @@ def recovery_garbled_text(
             if targets and not all(target in fixed_text for target in targets):
                 continue
             yield codec1, codec2, fixed_text
+
+
+DATA = t.TypeVar('DATA')
+
+
+def list_slicer(
+        split_list: t.Union[t.Sequence[DATA], t.Iterator[DATA]],
+        split_size: int,
+) -> t.Iterator[DATA]:
+    """
+    数组切片器
+
+    :param split_list: 待切片的数组
+    :param split_size: 切片大小
+    :return 数组切片迭代器
+    """
+    items = []
+    for item in split_list:
+        items.append(item)
+        if len(items) >= split_size:
+            yield items
+            items = []
+    else:
+        if items:
+            yield items
