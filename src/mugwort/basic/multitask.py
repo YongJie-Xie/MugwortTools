@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 @Author      : YongJie-Xie
@@ -9,7 +8,7 @@
 @License     : MIT License
 @ProjectName : MugwortTools
 @Software    : PyCharm
-@Version     : 1.0
+@Version     : 1.1.1
 """
 import array
 import concurrent.futures
@@ -30,6 +29,7 @@ _KT = t.TypeVar('_KT')
 _VT = t.TypeVar('_VT')
 
 
+# noinspection PyUnusedLocal
 class _BoundedPoolExecutor(concurrent.futures.Executor):
     """无界线程有界进程池"""
     _semaphore = None
@@ -37,10 +37,10 @@ class _BoundedPoolExecutor(concurrent.futures.Executor):
     def acquire(self):
         self._semaphore.acquire()
 
-    def release(self, fn):  # noqa
+    def release(self, fn: concurrent.futures.Future):
         self._semaphore.release()
 
-    def submit(self, fn, *args, **kwargs):
+    def submit(self, fn: t.Callable, *args: t.Any, **kwargs: t.Any):
         self.acquire()
         future = super().submit(fn, *args, **kwargs)
         future.add_done_callback(self.release)
@@ -59,7 +59,7 @@ class _ThreadPoolExecutor(concurrent.futures.ThreadPoolExecutor):
 class _BoundedThreadPoolExecutor(_BoundedPoolExecutor, _ThreadPoolExecutor):
     """有界线程池"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
         self._semaphore = threading.BoundedSemaphore(self.max_workers)
 
@@ -77,7 +77,7 @@ class _BoundedProcessPoolExecutor(_BoundedPoolExecutor, _ProcessPoolExecutor):
     """有界进程池"""
     _max_workers = 0
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
         self._semaphore = multiprocessing.BoundedSemaphore(self.max_workers)
 
@@ -88,19 +88,18 @@ class _BoundedProcessPoolExecutor(_BoundedPoolExecutor, _ProcessPoolExecutor):
 
 class MultiTaskVariable:
     """多线程、多进程共享变量"""
-    MODE = ('thread', 'process')
+    MODE = {'thread', 'process'}
 
-    def __init__(self, mode: str):
+    def __init__(self, mode: t.Literal['thread', 'process']):
         """
         初始化共享变量
 
         :param mode: 共享变量模式，可选 thread / process 值
         """
+        if mode not in self.MODE:
+            raise ValueError('模式无效，可选值：thread / process')
+
         self._mode = mode
-
-        if self._mode not in self.MODE:
-            raise ValueError('mode is invalid')
-
         if self._mode == 'process':
             self._manager = multiprocessing.Manager()
 
@@ -111,7 +110,9 @@ class MultiTaskVariable:
     @property
     def manager(self) -> multiprocessing.managers.SyncManager:
         """多进程共享数据管理器"""
-        return self._manager if self._mode == 'process' else None
+        if self._mode != 'process':
+            raise RuntimeError('共享数据管理器仅适用于 process 模式')
+        return self._manager
 
     def get_lock(self) -> threading.Lock:
         """
@@ -150,7 +151,10 @@ class MultiTaskVariable:
             return self._manager.RLock()
         return threading.RLock()
 
-    def get_condition(self, lock: t.Union[threading.Lock, threading.RLock] = None) -> threading.Condition:
+    def get_condition(
+            self,
+            lock: t.Union[threading.Lock, threading.RLock, None] = None,
+    ) -> threading.Condition:
         """
         条件对象：
             实现条件变量对象的类。一个条件变量对象允许一个或多个线程在被其它线程所通知之前进行等待。
@@ -235,7 +239,12 @@ class MultiTaskVariable:
             return self._manager.Event()
         return threading.Event()
 
-    def get_barrier(self, parties: int, action: t.Callable = None, timeout: int = None) -> threading.Barrier:
+    def get_barrier(
+            self,
+            parties: int,
+            action: t.Optional[t.Callable] = None,
+            timeout: t.Optional[int] = None,
+    ) -> threading.Barrier:
         """
         栅栏对象：
             创建一个需要 parties 个线程的栅栏对象。如果提供了可调用的 action 参数，它会在所有线程被释放时在其中一个线程中自动调用。
@@ -340,7 +349,7 @@ class MultiTaskVariable:
             raise ValueError('typecode invalid')
         return self._manager.Value(typecode, value)
 
-    def get_dict(self, sequence: t.Mapping[_KT, _VT] = None) -> t.Dict[_KT, _VT]:
+    def get_dict(self, sequence: t.Optional[t.Mapping[_KT, _VT]] = None) -> t.Dict[_KT, _VT]:
         """
         字典代理对象：
             创建一个共享的 dict 对象并返回它的代理。
@@ -358,7 +367,7 @@ class MultiTaskVariable:
             return self._manager.dict(sequence or {})
         return dict(sequence or {})
 
-    def get_list(self, sequence: t.Sequence[_T] = None) -> t.List[_T]:
+    def get_list(self, sequence: t.Optional[t.Sequence[_T]] = None) -> t.List[_T]:
         """
         列表代理对象：
             创建一个共享的 list 对象并返回它的代理。
@@ -382,7 +391,7 @@ class MultiTask:
     基于多线程、多进程实现的多任务处理工具，减少重复书写非逻辑代码。
 
     ========= ===============================================================
-    模式区别
+    有关线程、进程、有界、无界的简要描述
     ----------------------- -------------------------------------------------
     'thread'                无界线程池，即原生线程池
     'thread' bounded        有界线程池，对 submit 函数进行信号量限制的线程池
@@ -390,32 +399,43 @@ class MultiTask:
     'process' bounded       有界进程池，对 submit 函数进行信号量限制的进程池
     ======================= =================================================
     """
-    MODE = ('thread', 'process')
+    MODE = {'thread', 'process'}
     EXECUTOR_MAP = {
         'thread': [_ThreadPoolExecutor, _BoundedThreadPoolExecutor],
         'process': [_ProcessPoolExecutor, _BoundedProcessPoolExecutor],
     }
 
-    def __init__(self, mode: str, *, bounded: bool = False, max_workers: int = None, logger: Logger = None):
+    def __init__(
+            self,
+            mode: t.Literal['thread', 'process'],
+            *,
+            bounded: bool = False,
+            max_workers: t.Optional[int] = None,
+            logger: t.Optional[Logger] = None,
+    ):
         """
         初始化任务池
 
         :param mode: 执行器模式，可选 thread / process 值
         :param max_workers: 执行器工人上限
         """
+        if mode not in self.MODE:
+            raise ValueError('模式无效，可选值：thread / process')
+
         self._mode = mode
         self._max_workers = max_workers
         self._logger = logger or Logger('MultiTask')
 
-        if self._mode not in self.MODE:
-            raise ValueError('mode is invalid')
-
         self._executor_total = 0
         self._executor_pool = self.EXECUTOR_MAP[mode][bounded](max_workers=max_workers)
-        self._logger.info('已初始化 %s 模式任务池，池大小：%d', mode, self._executor_pool.max_workers)
+        self._logger.debug('已初始化 %s 模式的任务池，池大小：%d', self._mode, self._executor_pool.max_workers)
 
         self._variable = MultiTaskVariable(self._mode)
-        self._logger.info('已初始化 %s 模式共享变量', self._mode)
+        self._logger.debug('已初始化 %s 模式的共享变量', self._mode)
+
+    @property
+    def variable(self) -> MultiTaskVariable:
+        return self._variable
 
     def __del__(self):
         if hasattr(self, '_executor_pool'):
@@ -424,20 +444,27 @@ class MultiTask:
     def submit(self, fn: t.Callable, *args, **kwargs) -> concurrent.futures.Future:
         future = self._executor_pool.submit(fn, *args, **kwargs)
         self._executor_total += 1
-        self._logger.info('已提交第 %d 个任务', self._executor_total)
+        self._logger.debug('已提交 %d 个任务', self._executor_total)
         return future
+
+    def submit_multi(self, fn: t.Callable, size: int = 0, *args, **kwargs) -> t.List[concurrent.futures.Future]:
+        futures = []
+        for _ in range(size if size > 0 else 0):
+            future = self.submit(fn, *args, **kwargs)
+            self._executor_total += 1
+            self._logger.debug('已提交 %d 个任务', self._executor_total)
+            futures.append(future)
+        return futures
 
     def submit_maxsize(self, fn: t.Callable, *args, **kwargs) -> t.List[concurrent.futures.Future]:
         futures = []
         for _ in range(self._max_workers - self._executor_total):
             future = self.submit(fn, *args, **kwargs)
+            self._executor_total += 1
+            self._logger.debug('已提交 %d 个任务', self._executor_total)
             futures.append(future)
         return futures
 
     def shutdown(self):
         self._executor_pool.shutdown()
-        self._logger.info('已结束全部任务，累计提交 %d 个任务', self._executor_total)
-
-    @property
-    def variable(self) -> MultiTaskVariable:
-        return self._variable
+        self._logger.debug('任务已全部结束，累计提交 %d 个任务', self._executor_total)
