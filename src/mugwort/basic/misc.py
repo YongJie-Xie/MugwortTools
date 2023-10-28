@@ -11,6 +11,8 @@
 @Version     : 1.0.1
 """
 import itertools
+import random
+import socket
 import typing as t
 from datetime import datetime, timezone, timedelta
 
@@ -22,6 +24,8 @@ __all__ = [
     'codecs',
     'recovery_garbled_text',
     'list_slicer',
+    'get_port_unused_random',
+    'get_port_usage',
 ]
 
 
@@ -180,3 +184,27 @@ def list_slicer(
     else:
         if items:
             yield items
+
+
+def get_port_unused_random(cls, start: int, stop: int, host: str = '0.0.0.0') -> int:
+    """随机获取未使用的端口"""
+    port = random.randint(start, stop)
+    while get_port_usage(host, port, times=1) is True:
+        port = random.randint(start, stop)
+    return port
+
+
+def get_port_usage(host: str, port: int, times: int = 1) -> bool:
+    """获取端口使用情况"""
+    host = '127.0.0.1' if host == '0.0.0.0' else host
+    while times > 0:
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            if sock.connect_ex((host, port)) == 0:
+                return True
+        except OSError:
+            pass
+        finally:
+            times -= 1
+    return False
