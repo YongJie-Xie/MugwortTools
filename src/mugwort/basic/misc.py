@@ -186,7 +186,7 @@ def list_slicer(
             yield items
 
 
-def get_port_unused_random(cls, start: int, stop: int, host: str = '0.0.0.0') -> int:
+def get_port_unused_random(start: int, stop: int, host: str = '0.0.0.0') -> int:
     """随机获取未使用的端口"""
     port = random.randint(start, stop)
     while get_port_usage(host, port, times=1) is True:
