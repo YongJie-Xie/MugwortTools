@@ -45,7 +45,7 @@ class IP2Region:
             self,
             ip2region_dbx_filepath: str = 'ip2region.xdb',
             download_ip2regin_xdb_switch: bool = True,
-            logger: t.Optional[Logger] = None
+            logger: t.Optional[Logger] = None,
     ):
         self._logger = logger or Logger('IP2Region')
 
@@ -57,7 +57,7 @@ class IP2Region:
 
         self._ip2region_dbx = open(ip2region_dbx_filepath, 'rb').read()
 
-    def get_region(self, ip: str) -> dict | None:
+    def get_region(self, ip: str) -> t.Optional[dict]:
         if ip_verify(ip) is False:
             return None
 

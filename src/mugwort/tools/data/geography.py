@@ -132,18 +132,14 @@ class Coordinate2City:
                 urllib.request.urlretrieve(base_url + gn_admin2_txt, gn_admin2_txt_filepath)
 
                 self._logger.info('提取城市信息...')
-                with (
-                    zipfile.ZipFile(open(gn_cities_zip_filepath, 'rb')) as gn_cities_zip_file,
-                    open(gn_cities_txt_filepath, 'wb') as gn_cities_txt_file,
-                ):
+                with zipfile.ZipFile(open(gn_cities_zip_filepath, 'rb')) as gn_cities_zip_file, \
+                        open(gn_cities_txt_filepath, 'wb') as gn_cities_txt_file:
                     gn_cities_txt_file.write(gn_cities_zip_file.read(gn_cities_txt))
 
                 self._logger.info('读取数据文件...')
-                with (
-                    open(gn_cities_txt_filepath, 'rt', encoding='utf8') as gn_cities_txt_file,
-                    open(gn_admin1_txt_filepath, 'rt', encoding='utf8') as gn_admin1_txt_file,
-                    open(gn_admin2_txt_filepath, 'rt', encoding='utf8') as gn_admin2_txt_file,
-                ):
+                with open(gn_cities_txt_filepath, 'rt', encoding='utf8') as gn_cities_txt_file, \
+                        open(gn_admin1_txt_filepath, 'rt', encoding='utf8') as gn_admin1_txt_file, \
+                        open(gn_admin2_txt_filepath, 'rt', encoding='utf8') as gn_admin2_txt_file:
                     gn_cities_rows = [
                         row for row in csv.reader(gn_cities_txt_file, delimiter='\t', quoting=csv.QUOTE_NONE)
                     ]
