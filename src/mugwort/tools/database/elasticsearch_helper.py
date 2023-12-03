@@ -63,6 +63,22 @@ class ElasticsearchHelper:
     def client(self) -> Elasticsearch:
         return self._client
 
+    def get_all_indices(
+            self,
+            sort: t.Optional[t.Union[str, t.Union[t.List[str], t.Tuple[str, ...]]]] = 'index',
+            skip_system_indices: bool = True,
+    ):
+        for item in self._client.cat.indices(h='index', s=sort, format='json'):
+            if skip_system_indices and item['index'].startswith('.'):
+                continue
+            yield item['index']
+
+    def get_index_configs(self, indices: t.List[str]):
+        pass
+
+    def get_index_status(self, indices: t.List[str]):
+        pass
+
     # index helper #
 
     def index_refresh(
