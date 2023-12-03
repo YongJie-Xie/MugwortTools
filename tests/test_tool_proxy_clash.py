@@ -9,7 +9,7 @@
 @License     : MIT License
 @ProjectName : MugwortTools
 @Software    : PyCharm
-@Version     : 1.0
+@Version     : 1.0.0
 """
 from mugwort import Logger
 from mugwort.tools.proxy.clash_proxy import ClashProxy, ClashConfig

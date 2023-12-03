@@ -8,7 +8,7 @@
 @License     : MIT License
 @ProjectName : MugwortTools
 @Software    : PyCharm
-@Version     : 1.0
+@Version     : 1.0.0
 """
 from mugwort import Logger
 
